@@ -1,0 +1,34 @@
+<!--
+  No aria-label on the root: this is parsed as XML, not HTML, so a bare `&`
+  in an attribute is a parse error and the whole file is thrown out — the tab
+  falls back to nothing at all, quietly. A favicon is announced by the page
+  title anyway, so there is nothing to label.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!--
+    The tab icon.
+
+    An SVG rather than a .ico so it can answer the browser's theme: the two
+    rules below are read by the *browser's* colour scheme, not the page's, so
+    the heart is olive against a light tab strip and chartreuse against a dark
+    one. Both are colours off the card itself.
+
+    Filled, not outlined. This is drawn at 16 pixels more often than not, and
+    at that size a stroke closes up into a blob — the silhouette is the only
+    thing that survives, so it is the only thing here.
+  -->
+  <style>
+    .heart {
+      fill: #4e5942;
+    }
+    @media (prefers-color-scheme: dark) {
+      .heart {
+        fill: #c2c76a;
+      }
+    }
+  </style>
+  <path
+    class="heart"
+    d="M16 27.6C13.4 25.3 4 18.7 4 11.6 4 7.4 7 4.5 10.7 4.5c2.3 0 4.4 1.4 5.3 3.5.9-2.1 3-3.5 5.3-3.5C25 4.5 28 7.4 28 11.6c0 7.1-9.4 13.7-12 16z"
+  />
+</svg>

@@ -1,26 +1,644 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ─────────────────────────────────────────────────────────────
+   COLOURS — deliberately NOT `inline`.
+
+   `@theme inline` bakes each value straight into the utilities it
+   generates, so `.bg-paper` compiles to a literal hex and overriding
+   `--color-paper` at runtime does nothing. Without `inline`, the
+   utilities come out as `var(--color-paper)` instead, which is what
+   lets the theme editor repaint the page live.
+
+   The fonts stay inline, in their own block below — see the note there.
+   ───────────────────────────────────────────────────────────── */
+@theme {
+  /* ─────────────────────────────────────────────────────────────
+     Extracted from the four Bather cards. Five colours, and every
+     card is just two of them plus a third for its type:
+       olive + blush · cream + chartreuse · chartreuse + olive ·
+       blush + cream, lettered in tan.
+     ───────────────────────────────────────────────────────────── */
+  --color-olive: #4e5942; /* Wildeflower ground, Neroli flower  */
+  --color-olive-deep: #3c4432; /* one step down, for hovers          */
+  --color-chartreuse: #c2c76a; /* Neroli ground                      */
+  --color-chartreuse-deep: #b4ba55; /* Still Water flower                 */
+  --color-cream: #f5f2dc; /* Still Water ground, Bergamot flower*/
+  --color-blush: #ebd1c8; /* Bergamot ground, Wildeflower flower*/
+  --color-tan: #a8825e; /* Bergamot lettering                 */
+
+  /* ── Surfaces ───────────────────────────────────────────── */
+  --color-paper: #f2efdc; /* the page                           */
+  /* Reads lighter than the finished card: the texture layer
+     multiplies over it and brings it down about 5%. */
+  --color-paper-warm: #faf7e6;
+
+  /* ── Type ───────────────────────────────────────────────── */
+  --color-ink: #4e5942; /* headings + body                    */
+  --color-ink-soft: #a8825e; /* secondary                          */
+  --color-accent: #a8825e; /* hairline rules, small marks        */
+
+  /* ── The envelope ───────────────────────────────────────── */
+  --color-blush-mid: #e3c4b9; /* flap                               */
+  --color-blush-deep: #d9b6a9; /* front pocket                       */
+
+  /* ── The two full-bleed panels ──────────────────────────── */
+  /* Each carries a `-dim` that is almost the panel colour itself —
+     the text is there from the start, just not yet legible — and an
+     `-ink` it resolves to. */
+  --color-panel-verse: #c2c76a; /* the aya                            */
+  --color-verse-dim: #cdd17f;
+  --color-verse-ink: #3c4432;
+
+  --color-panel-letter: #ebd1c8; /* the invitation                     */
+  --color-letter-dim: #e5c8bd;
+  --color-letter-ink: #7a5836;
+
 }
 
+/* ─────────────────────────────────────────────────────────────
+   FONTS — these MUST stay `inline`.
+
+   Each one points at a variable next/font defines on <body>, not on
+   :root. Without `inline`, Tailwind would emit `--font-display:
+   var(--font-tobias)` into :root, where `--font-tobias` does not exist
+   — and a custom property that fails substitution computes to the
+   guaranteed-invalid value and inherits down as invalid, taking every
+   font on the page with it. Inlining sidesteps the indirection.
+   ───────────────────────────────────────────────────────────── */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-tobias);
+  --font-serif: var(--font-tobias);
+  --font-arabic: var(--font-amiri);
+  --font-persian: var(--font-markazi);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ─────────────────────────────────────────────────────────────
+   The light.
+
+   The direction the light comes FROM, as a unit vector in screen
+   coordinates: +x right, +y down. Everything on the page that
+   models a surface reads these two numbers instead of hardcoding
+   an offset, so the whole sheet is lit by one lamp rather than by
+   a dozen separate decisions that could drift apart.
+
+   The values here are the rest position — straight above, which is
+   where every shadow on this site was drawn. components/light.ts
+   swings them about as the guest moves the pointer or tilts the
+   phone, and never below the horizon. If that module never runs,
+   these defaults hold and nothing looks any different.
+   ───────────────────────────────────────────────────────────── */
+:root {
+  --light-x: 0;
+  --light-y: -1;
+}
+
+html {
+  /* Lenis drives the scrolling; never let the browser also smooth it. */
+  scroll-behavior: auto;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  /* `--font-tobias` directly, NOT the theme name `--font-serif`. The font
+     block is `inline`, so Tailwind resolves those names when it generates
+     utilities and what lands in :root is the unresolved `var(--font-tobias)`
+     — which is undefined there and computes to invalid. Reaching for
+     `--font-serif` here silently dropped the whole page to system sans. */
+  font-family: var(--font-tobias), Georgia, serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+  /* `start`, not `right` — so the RTL page aligns right while the LTR card
+     inside it still aligns left, and Tailwind's text-* utilities keep working. */
+  text-align: start;
+}
+
+/* While the envelope is still sealed, the page underneath cannot move. */
+body[data-locked='true'] {
+  overflow: hidden;
+  height: 100dvh;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Letterpress. Not a drop shadow — a 1px tonal press, the way
+   ink sits in the dent of cotton paper. Same hue family, never
+   grey, never offset far enough to read as a shadow.
+   ───────────────────────────────────────────────────────────── */
+/* Type pressed *into* the sheet.
+   A depression darkens along the wall facing the light and catches along the
+   lip away from it — so the dark offset goes TOWARD the lamp and the pale one
+   directly opposite. Both stay at 1px with no spread: the moment an offset
+   gets big enough to read as a separate shape it stops being an impression
+   and becomes a drop shadow.
+
+   At the light's rest position of (0, -1) these resolve to exactly the
+   `0 -1px` / `0 1px` pair they were written as before the lamp could move. */
+.deboss {
+  text-shadow:
+    calc(var(--light-x) * 1px) calc(var(--light-y) * 1px) 0 rgba(48, 56, 40, 0.18),
+    calc(var(--light-x) * -1px) calc(var(--light-y) * -1px) 0 rgba(255, 255, 255, 0.75);
+}
+
+/* The names. The same impression, with a hair more depth to match the
+   size of the type — still 1px, just a touch of blur on the dark edge. */
+.letterpress {
+  text-shadow:
+    calc(var(--light-x) * 1px) calc(var(--light-y) * 1px) 1px rgba(48, 56, 40, 0.19),
+    calc(var(--light-x) * -1px) calc(var(--light-y) * -1px) 0 rgba(255, 255, 255, 0.85);
+}
+
+/* The wax seal used to live here as a border-radius blob. It is SVG now —
+   see components/WaxSeal.tsx — because the edge is the whole tell, and CSS
+   cannot give you an irregular one. */
+
+/* ─────────────────────────────────────────────────────────────
+   Cotton paper.
+
+   Two layers of turbulence rather than one: a fine, fast tile for the
+   tooth of the fibre, and a slow, coarse tile for the mottling that
+   makes a real sheet look unevenly pressed. One layer alone reads as
+   digital noise; the two together read as stock.
+   ───────────────────────────────────────────────────────────── */
+.paper {
+  background-color: var(--color-paper-warm);
+}
+
+/* Where the light lands on the sheet.
+
+   A 1px letterpress impression is far too fine to carry a moving lamp on its
+   own — at hero size it is a hairline on a screen-and-a-half of paper. This
+   is what actually makes the light legible: a very wide, very shallow bloom
+   that slides across the stock as the lamp swings, the way a sheet held up to
+   a window brightens on the side facing it.
+
+   Wide and shallow is the whole brief. Tighten the radius or lift the alpha
+   and it stops being a lit surface and becomes a spotlight sitting on top of
+   one — so the gradient is larger than the card it is painted on, and its
+   falloff runs the full width rather than ending anywhere you could point at.
+
+   It sits under the type (::before paints beneath the element's children) and
+   under the fibre texture, which multiplies over the top of both. */
+.paper::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(
+    130% 100% at calc(50% + var(--light-x) * 42%) calc(50% + var(--light-y) * 42%),
+    rgba(255, 253, 242, 0.62) 0%,
+    rgba(255, 253, 242, 0.22) 38%,
+    rgba(255, 253, 242, 0) 74%
+  );
+}
+
+.paper::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.22;
+  mix-blend-mode: multiply;
+  background-image:
+    /* fibre tooth */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='a'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23a)' opacity='0.34'/%3E%3C/svg%3E"),
+    /* slow mottle */
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='620' height='620'%3E%3Cfilter id='b'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.014' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='620' height='620' filter='url(%23b)' opacity='0.3'/%3E%3C/svg%3E");
+  background-size:
+    220px 220px,
+    620px 620px;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Buttons. Solid olive with cream lettering — the deepest contrast
+   the Bather palette makes, and the pairing the Wildeflower card is
+   built on. 5px corners, matching the map frame.
+   ───────────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  border-radius: 5px;
+  padding: 0.95rem 1.8rem;
+  background-color: var(--color-olive);
+  color: var(--color-cream);
+  line-height: 1;
+  transition: background-color 0.4s ease;
+}
+
+.btn:hover {
+  background-color: var(--color-olive-deep);
+}
+
+/* Icons and marks inside a button ride the fill, one step quieter than
+   the label so they read as support rather than as a second word. */
+/* Icons take the label's colour. They sit a touch back from it, but only
+   a touch — knocking them down further undoes the weight they are carrying. */
+.btn svg {
+  color: currentColor;
+  opacity: 0.88;
+  flex: none;
+}
+
+/* A hairline rule, the weight of a letterpress keyline. */
+.rule {
+  height: 1px;
+  background-color: var(--color-accent);
+  opacity: 0.5;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   The invitation card.
+
+   Everything inside is sized in `cqw` so the card reads identically
+   at 264px inside the envelope and at 880px as the hero — Flip only
+   has to move the box.
+
+   `container-type` is set here and must never be stripped: without it
+   every `cqw` below silently falls back to the viewport.
+   ───────────────────────────────────────────────────────────── */
+.card-frame {
+  container-type: inline-size;
+}
+
+/* Portrait is the base case — phones, and the card inside the envelope. */
+.card {
+  aspect-ratio: 5 / 7;
+
+  /* ── The unit everything on the card is drawn in ──────────────
+     One percent of the card's width, EXCEPT on a window too short to take
+     the card at that size, where it becomes one percent of the height
+     instead. Every length below is a multiple of it, so the whole card
+     scales as one object and its proportions never change.
+
+     Why the second term exists: as the hero, the card is the full viewport —
+     full width AND full height. Sized in `cqw` alone the type scales with the
+     width while the room it has to fit into is the height, so a wide, short
+     window (a laptop, most of them) sets the card far too large and shears
+     the foot off. There is no scrollbar to rescue it either: the hero is
+     pinned, and `overflow: hidden` on the card simply cuts.
+
+     The portrait card measures 137 of these units from the top line to the
+     last of the three columns, so it fits a viewport when the unit is at most
+     100dvh/137. 0.70 leaves a little over that for slack, and for the
+     `justify-between` that distributes it. Re-measure it if anything is added
+     to the card or taken off it — too small a number here just sets the card
+     smaller than it needed to be, which is quieter than an overflow and so
+     easier to miss.
+
+     Both terms are needed: inside the envelope the card is a fraction of the
+     viewport, so `cqw` is much the smaller of the two and wins; as a hero on
+     a tall phone the same is true. The height term only bites when it has to. */
+  --u: min(1cqw, 0.7dvh);
+}
+
+/* Once it has been handed over, the card stops being a card-shaped object and
+   becomes the hero itself: it fills its slot, whatever shape that is, and the
+   slot fills the viewport. The container query still drives the type — the
+   container is simply the whole screen now.
+
+   Two class selectors, so this beats the aspect-ratio the container query
+   below sets no matter which order the two land in. */
+.card-hero .card-frame {
+  height: 100%;
+}
+.card-hero .card {
+  aspect-ratio: auto;
+  height: 100%;
+}
+/* Set once the arrival animation has finished expanding the slot, replacing
+   the inline width/height it was animated with — so a resize after that is
+   still handled by CSS. Unlayered, so it outranks the Tailwind utilities that
+   size the slot on the way in. */
+#hero-slot[data-hero='full'] {
+  width: 100%;
+  height: 100%;
+}
+.card-topline {
+  padding-top: calc(6.5 * var(--u));
+  padding-inline: calc(9 * var(--u));
+  gap: calc(2.5 * var(--u));
+}
+/* Written, not set — see the Pinyon note in layout.tsx. A copperplate runs
+   small and low for its point size, so it is stepped up by half again to sit
+   level with the capitals it shares the card with. */
+.card-topname {
+  font-family: var(--font-script), cursive;
+  font-size: calc(5.6 * var(--u));
+  font-weight: 400;
+  white-space: nowrap;
+}
+/* The names carry their own air above them rather than relying on where
+   `justify-between` happens to leave them: with the foot of the card now
+   three columns deep, the slack all lands in one gap, and the top line ends
+   up crowding the display type. */
+.card-names {
+  padding-top: calc(3 * var(--u));
+  /* Air under the date. On the tightest card there is almost no slack left
+     for `justify-between` to hand out, and a copperplate's ascenders reach
+     far enough up that the first heading would otherwise touch the date. */
+  padding-bottom: calc(3 * var(--u));
+}
+.card-name {
+  font-size: calc(17 * var(--u));
+  font-weight: 100;
+  line-height: 0.94;
+  letter-spacing: -0.012em;
+  /* "MINA&" is one line — the ampersand must never wrap off it. */
+  white-space: nowrap;
+}
+/* ── The foot of the card: why, when, where ───────────────────
+   Stacked into one column on a portrait card, and three columns across on a
+   landscape one, with an engraved flourish between each pair. Same five
+   children either way — three blocks and two rules — so the only thing the
+   container query changes is the direction they run in.
+
+   These base values are the TIGHT ones, sized for the portrait card as it sits
+   inside the envelope: 5:7, which is 1.4 times its own width and the least
+   vertical room the card is ever given. Everything on the card has to fit
+   inside that or `overflow: hidden` shears the foot off. The portrait hero
+   gets its own, roomier set further down — it is the same width but two and a
+   half times as tall, and there is no reason to set it that small there. */
+.card-info {
+  display: grid;
+  justify-items: center;
+  align-items: center;
+  gap: calc(2.2 * var(--u));
+  padding-inline: calc(8 * var(--u));
+  padding-bottom: calc(4.5 * var(--u));
+  text-align: center;
+}
+/* What each column says, in Persian, in the same face as the rest of the
+   site's prose. No tracking and no uppercasing: both are Latin devices, and
+   letter-spacing in particular prises the joins of an Arabic-script word
+   apart and breaks it. Markazi runs small, so it is stepped up to carry the
+   same weight of colour as the script heading above it. */
+.info-line {
+  font-family: var(--font-markazi), serif;
+  font-size: calc(3.8 * var(--u));
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+.info-rule {
+  display: block;
+  align-self: center;
+  color: var(--color-accent);
+  opacity: 0.85;
+}
+.info-rule-h {
+  width: calc(13 * var(--u));
+  height: calc(3 * var(--u));
+}
+.info-rule-v {
+  display: none;
+}
+.info-rule-mirror svg {
+  transform: scaleX(-1);
+}
+
+/* The portrait card once it IS the hero — same width, two and a half times
+   the height. Scoped inside the portrait query so none of it can reach the
+   landscape hero, where `.card-hero .x` would otherwise outrank the plain
+   `.x` the container query sets. */
+@container (max-width: 559.9px) {
+  .card-hero .card-names {
+    padding-top: calc(8 * var(--u));
+    padding-bottom: calc(6 * var(--u));
+  }
+  .card-hero .card-date {
+    margin-top: calc(5 * var(--u));
+  }
+  .card-hero .card-info {
+    gap: calc(4.5 * var(--u));
+    padding-bottom: calc(10 * var(--u));
+  }
+  .card-hero   .card-hero .info-line {
+    font-size: calc(4.2 * var(--u));
+    line-height: 1.7;
+  }
+  .card-hero .info-rule-h {
+    width: calc(15 * var(--u));
+    height: calc(3.6 * var(--u));
+  }
+}
+
+/* The date is the one line on the card NOT set in Tobias — a plain grotesque
+   against all that serif, which is what makes it read as a stamped detail
+   rather than as part of the setting. Helvetica is a system face here, so
+   there is nothing to load: the stack falls through to whatever the platform
+   calls the same thing. */
+.card-date {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: calc(4.6 * var(--u));
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  /* Tracking adds a trailing gap that would read as off-centre. */
+  text-indent: 0.05em;
+  line-height: 1.65;
+}
+
+/* Portrait card — phones. A landscape card on a portrait screen is always
+   too small: 1.7cqw of a 340px card is 6px, which nobody can read. Going
+   portrait buys the vertical room to set everything larger and stack the
+   detail into one column. Threshold is tuned to line up with `sm:`. */
+/* Landscape — the card once it has room. Both the envelope and the hero slot
+   are sized so the frame lands well clear of this threshold on either side,
+   never straddling it. */
+@container (min-width: 560px) {
+  .card {
+    aspect-ratio: 7 / 5;
+    /* Three columns instead of three stacked blocks: the landscape card is
+       only 55 units deep, so it can take a much larger unit before it runs
+       out of viewport. See the note on the portrait value above. */
+    --u: min(1cqw, 1.7dvh);
+  }
+  .card-topline {
+    padding-top: calc(4.5 * var(--u));
+    padding-inline: calc(7.5 * var(--u));
+    gap: calc(3 * var(--u));
+  }
+  .card-topname {
+    font-size: calc(3 * var(--u));
+  }
+  .card-names {
+    padding-top: calc(2 * var(--u));
+    padding-bottom: calc(2 * var(--u));
+  }
+  .card-name {
+    font-size: calc(13 * var(--u));
+  }
+  .card-date {
+    font-size: calc(2.4 * var(--u));
+    letter-spacing: 0.06em;
+    text-indent: 0.06em;
+  }
+
+  /* Three across, with the flourishes taking only the width they need. */
+  .card-info {
+    grid-template-columns: 1fr auto 1fr auto 1fr;
+    gap: 0 calc(2.5 * var(--u));
+    padding-inline: calc(7 * var(--u));
+    padding-bottom: calc(7 * var(--u));
+  }
+    .info-line {
+    font-size: calc(2.1 * var(--u));
+    line-height: 1.7;
+  }
+  .info-rule-h {
+    display: none;
+  }
+  .info-rule-v {
+    display: block;
+    width: calc(1.8 * var(--u));
+    height: calc(8 * var(--u));
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   The names, and their Persian counterparts.
+
+   Each name sits in a window with both settings of it stacked in the same
+   grid cell; the loop in Card.tsx slides one out to the right as the other
+   arrives from the left. Nothing fades — the window does all the hiding, so
+   the type never drops below full weight.
+
+   The window is clipped with `clip-path`, and only on the two sides the type
+   travels through. `overflow: hidden` cannot do that: it clips all four sides
+   or none, and Persian hangs far enough below the baseline that any box tight
+   enough to be a line window would shave the descenders off.
+
+   The ampersand is deliberately outside all of this. It is the one mark both
+   settings share, so it holds still and the names change either side of it.
+   ───────────────────────────────────────────────────────────── */
+/* The block is as wide as the widest of the four settings, and both lines
+   stretch to it — so the pair always sets as a clean rectangle rather than
+   two lines of whatever width their letters happened to come to. */
+.name-block {
+  display: inline-grid;
+}
+
+.name-row {
+  display: block;
+  line-height: 1;
+}
+/* Pulls the pair back to the 0.94em the names have always been set at. The
+   row is 1.16em, not the 1em the Latin box suggests: the Persian is set 1.12
+   times larger and the two are baseline-aligned, so the row has to hold both
+   faces' ascents and descents. Measured, not guessed — change either face, or
+   the step-up below, and it has to be measured again. */
+.name-row + .name-row {
+  margin-top: -0.22em;
+}
+
+.name-line {
+  display: grid;
+  width: 100%;
+  /* Both settings on one baseline — the two scripts sit on the same line,
+     rather than each being centred inside its own box. */
+  align-items: baseline;
+  text-align: center;
+  clip-path: inset(-45% 0);
+}
+
+/* Both settings stretch to the cell, which is as wide as the wider of the
+   two — so a slide of 110% always clears the window, whichever setting is
+   moving. Sized to their own text instead, the narrower one would still be
+   showing an edge when the wider one had gone. */
+.name-setting {
+  grid-area: 1 / 1;
+  line-height: 1;
+  white-space: nowrap;
+  will-change: transform;
+}
+
+/* Set at exactly the size of the Latin it stands in for, so one really is a
+   substitution for the other rather than a second, larger version of the same
+   line. The face is Markazi, the same one every other word of Persian on the
+   site is set in — 400 is the lightest cut it has, so this is as close to the
+   Tobias hairline beside it as the family goes.
+
+   Persian will still read a touch smaller at a shared point size: the script
+   simply has less of its body above the baseline than Latin capitals do. */
+/* Vazirmatn at 100, to stand beside a Tobias hairline without the weight
+   jumping as the two settings swap — see the note in layout.tsx.
+
+   Stepped up so the Persian reaches the same height as the Latin capitals it
+   replaces: measured, not guessed. Tobias capitals rise 0.723 of the em and
+   Vazirmatn's alef 0.643, so the Persian is set 1.12 times larger to draw a
+   line of the same height.
+
+   That levels the ascenders, which is as far as levelling can go. `مبین` has
+   no ascending letter in it at all — its tallest ink reaches 0.30 of the em
+   where `مینا` has an alef at 0.64 — so the second line will always sit lower
+   than the first. That is the script, not the setting; the only way to force
+   it would be to scale the two lines differently, which would make one of
+   them a different size to the other.
+
+   Use `--font-vazir`, NOT a theme name like `--font-persian`. The theme block
+   is `@theme inline`, which substitutes its values into the utilities Tailwind
+   generates and never emits them as custom properties — so `var(--font-persian)`
+   is undefined here, the whole declaration is thrown out as invalid, and the
+   Persian silently inherits Tobias and renders in whatever face the browser
+   substitutes for the missing Arabic glyphs. The next/font variables are set
+   on the body and genuinely exist. */
+.name-fa {
+  font-family: var(--font-vazir), sans-serif;
+  font-size: 1.12em;
+  font-weight: 100;
+  letter-spacing: 0;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   The words of the verse, once they can be touched.
+
+   Both classes are put on and taken off by hand — see the note in Aya.tsx on
+   why none of that goes through React.
+
+   The marker is deliberately NOT a colour: the colour of every word here
+   belongs to the scrubbed reveal tween, and anything that also wrote to it
+   would either be overwritten on the next frame or would freeze the word out
+   of the reveal. So the open word is marked the way everything else on this
+   site is marked — pressed into the surface, lit by the same lamp — with a
+   hairline under it at the depth an Arabic descender clears.
+   ───────────────────────────────────────────────────────────── */
+.word-touch {
+  cursor: pointer;
+  /* The tap lands on the word, not on the gap beside it. */
+  -webkit-tap-highlight-color: transparent;
+}
+
+.word-open {
+  text-shadow:
+    calc(var(--light-x) * 1px) calc(var(--light-y) * 1px) 0 rgba(48, 56, 40, 0.22),
+    calc(var(--light-x) * -1px) calc(var(--light-y) * -1px) 0 rgba(255, 255, 255, 0.45);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.42em;
+  text-decoration-color: color-mix(in srgb, currentColor 30%, transparent);
+}
+
+/* Wide-tracked small caps — the recurring detail line.
+   Latin only: never apply this to Arabic or Persian. */
+.tracked {
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+}
+
+/* Arabic-script letters join to their neighbours. Letter-spacing prises those
+   joins apart and makes the word look broken, so it is forced off here and
+   hierarchy is carried by size, weight and colour instead. */
+.font-persian,
+.font-arabic {
+  letter-spacing: 0 !important;
+}
+
+/* Respect a guest who has asked their device for less motion. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
