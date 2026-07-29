@@ -38,6 +38,13 @@ const GROUPS: Group[] = [
     ],
   },
   {
+    title: 'Couplet panel',
+    swatches: [
+      { token: '--color-panel-poem', label: 'Background' },
+      { token: '--color-poem-ink', label: 'Text' },
+    ],
+  },
+  {
     title: 'Invitation panel',
     note: 'Text colours are baked into the scroll tween — reload to see them.',
     swatches: [

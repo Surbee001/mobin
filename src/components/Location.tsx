@@ -51,7 +51,7 @@ export function Location() {
     <section
       ref={scope}
       dir="rtl"
-      className="relative z-30 flex items-center bg-paper px-6 py-36 sm:px-10 sm:py-52"
+      className="relative z-40 flex items-center bg-paper px-6 py-36 sm:px-10 sm:py-52"
     >
       <div className="mx-auto grid w-full max-w-5xl gap-12 sm:grid-cols-5 sm:items-center sm:gap-16">
         {/* The written address. */}

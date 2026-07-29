@@ -122,8 +122,9 @@ export function Countdown() {
   return (
     <section
       ref={scope}
+      id="finale"
       dir="rtl"
-      className="relative z-30 flex flex-col items-center justify-center overflow-hidden bg-paper px-6 pb-[46vw] pt-32 sm:pb-[34vw] sm:pt-44"
+      className="relative z-40 flex flex-col items-center justify-center overflow-hidden bg-paper px-6 pb-[46vw] pt-32 sm:pb-[34vw] sm:pt-44"
     >
       {/* A meadow along the bottom edge.
 

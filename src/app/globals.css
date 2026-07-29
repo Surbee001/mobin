@@ -49,6 +49,9 @@
   --color-verse-dim: #cdd17f;
   --color-verse-ink: #3c4432;
 
+  --color-panel-poem: #4e5942; /* the couplet — the one dark band    */
+  --color-poem-ink: #efece0;
+
   --color-panel-letter: #ebd1c8; /* the invitation                     */
   --color-letter-dim: #e5c8bd;
   --color-letter-ink: #7a5836;
@@ -496,6 +499,56 @@ body[data-locked='true'] {
 }
 
 /* ─────────────────────────────────────────────────────────────
+   The alternate hero — `design.hero: 'verse'`. A poster: two lines, the
+   names on one line, two lines. Drawn in the same `--u` as the other design,
+   so it scales as one object and fits a short window the same way.
+   ───────────────────────────────────────────────────────────── */
+.card-verse {
+  /* Centred with a gap, not `justify-between` — the utility on the element is
+     deliberately overridden here. As the hero this card is up to two and a
+     half times as tall as it is wide, and spread to the extremes of that the
+     three blocks stop being one composition and become three things at the
+     edges of an empty sheet. Held together in the middle, it reads as a
+     poster at every proportion. */
+  justify-content: center;
+  align-items: center;
+  gap: calc(18 * var(--u));
+  padding-inline: calc(7 * var(--u));
+  text-align: center;
+}
+
+.verse-line {
+  font-family: var(--font-markazi), serif;
+  font-size: calc(5 * var(--u));
+  font-weight: 400;
+  line-height: 1.9;
+}
+
+/* One line, and the longest thing on the card: it has to be set from the
+   width it has to fit into rather than from what looks big. */
+.verse-name {
+  font-size: calc(12 * var(--u));
+  font-weight: 100;
+  line-height: 1;
+  letter-spacing: -0.012em;
+  white-space: nowrap;
+}
+
+@container (min-width: 560px) {
+  .card-verse {
+    gap: calc(8 * var(--u));
+    padding-inline: calc(8 * var(--u));
+  }
+  .verse-line {
+    font-size: calc(2.3 * var(--u));
+    line-height: 2;
+  }
+  .verse-name {
+    font-size: calc(10 * var(--u));
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
    The names, and their Persian counterparts.
 
    Each name sits in a window with both settings of it stacked in the same
@@ -587,35 +640,6 @@ body[data-locked='true'] {
   font-size: 1.12em;
   font-weight: 100;
   letter-spacing: 0;
-}
-
-/* ─────────────────────────────────────────────────────────────
-   The words of the verse, once they can be touched.
-
-   Both classes are put on and taken off by hand — see the note in Aya.tsx on
-   why none of that goes through React.
-
-   The marker is deliberately NOT a colour: the colour of every word here
-   belongs to the scrubbed reveal tween, and anything that also wrote to it
-   would either be overwritten on the next frame or would freeze the word out
-   of the reveal. So the open word is marked the way everything else on this
-   site is marked — pressed into the surface, lit by the same lamp — with a
-   hairline under it at the depth an Arabic descender clears.
-   ───────────────────────────────────────────────────────────── */
-.word-touch {
-  cursor: pointer;
-  /* The tap lands on the word, not on the gap beside it. */
-  -webkit-tap-highlight-color: transparent;
-}
-
-.word-open {
-  text-shadow:
-    calc(var(--light-x) * 1px) calc(var(--light-y) * 1px) 0 rgba(48, 56, 40, 0.22),
-    calc(var(--light-x) * -1px) calc(var(--light-y) * -1px) 0 rgba(255, 255, 255, 0.45);
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 0.42em;
-  text-decoration-color: color-mix(in srgb, currentColor 30%, transparent);
 }
 
 /* Wide-tracked small caps — the recurring detail line.

@@ -26,16 +26,6 @@ type Options = {
    * spare, not on the frame it starts leaving the screen.
    */
   revealVh?: number
-  /**
-   * Handed the split words the moment they exist, before anything animates.
-   * Return a teardown and it runs before the split is reverted.
-   *
-   * This is the only safe place to reach for the word elements: they do not
-   * exist until SplitText has run, and they stop existing the instant it is
-   * reverted. Anything wired to them from outside would be holding nodes that
-   * are about to be thrown away.
-   */
-  onSplit?: (words: HTMLElement[]) => (() => void) | void
 }
 
 /**
@@ -47,7 +37,7 @@ type Options = {
  * shape depending on their neighbours, so cutting inside a word breaks the
  * joins and the script falls apart.
  */
-export function useWordReveal({ scope, dim, lit, revealVh = 0.45, onSplit }: Options) {
+export function useWordReveal({ scope, dim, lit, revealVh = 0.45 }: Options) {
   useGSAP(
     () => {
       const root = scope.current
@@ -66,8 +56,6 @@ export function useWordReveal({ scope, dim, lit, revealVh = 0.45, onSplit }: Opt
       const split = SplitText.create(els, { type: 'words', wordsClass: 'reveal-word' })
       gsap.set(split.words, { color: from })
 
-      const teardown = onSplit?.(split.words as HTMLElement[])
-
       const tween = gsap.to(split.words, {
         color: to,
         ease: 'none',
@@ -82,7 +70,6 @@ export function useWordReveal({ scope, dim, lit, revealVh = 0.45, onSplit }: Opt
       })
 
       return () => {
-        teardown?.()
         tween.scrollTrigger?.kill()
         split.revert()
       }

@@ -4,15 +4,24 @@ import { memo, useRef } from 'react'
 import { gsap } from 'gsap'
 import { Flip } from 'gsap/Flip'
 import { useGSAP } from '@gsap/react'
-import { Card, CARD_LANDED } from './Card'
+import { Card } from './Card'
+import { CardVerse } from './CardVerse'
+import { CARD_LANDED } from './NameLines'
 import { WaxSeal } from './WaxSeal'
 import { useScroll } from './SmoothScroll'
 import { site } from '@/site.config'
 
 gsap.registerPlugin(Flip, useGSAP)
 
+/**
+ * Which of the two designs the invitation is set in — see `design.hero`.
+ * Picked once, at module load: both are the same component shape, so the
+ * envelope, the Flip and the hero slot do not know or care which is inside.
+ */
+const Chosen = site.design.hero === 'verse' ? CardVerse : Card
+
 /** React must never re-render the card — GSAP moves its DOM node by hand. */
-const StableCard = memo(Card)
+const StableCard = memo(Chosen)
 
 export function Opening() {
   const scope = useRef<HTMLDivElement>(null)

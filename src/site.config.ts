@@ -5,7 +5,19 @@
  * ─────────────────────────────────────────────────────────────
  */
 
+/** The two hero designs. See `design.hero`. */
+export type HeroDesign =
+  /** The invitation card: names over two lines, three columns at the foot. */
+  | 'card'
+  /** The poster: two lines, the names on one line, two lines. */
+  | 'verse'
+
 export const site = {
+  /** Which design is showing. Change it here and reload — both are built. */
+  design: {
+    hero: 'card' as HeroDesign,
+  },
+
   /** Shown in the browser tab / when the link is shared. */
   meta: {
     title: 'مینا و مبین',
@@ -87,6 +99,21 @@ export const site = {
   ],
 
   /**
+   * The alternate hero, `design.hero: 'verse'`. Two lines above the names and
+   * two below, and nothing else on the card at all.
+   *
+   * Keep every line SHORT. They are set on one line each and stretched with
+   * kashidas on top of that; a line long enough to wrap breaks the shape the
+   * whole design rests on.
+   */
+  verse: {
+    above: ['با تمام عشق و شادی', 'آغاز فصلی تازه از داستان ما'],
+    /** One line, both settings — this design sets the pair side by side. */
+    names: { en: 'MINA & MOBIN', fa: 'مینا & مبین' },
+    below: ['خداوندا میان ما مهر بگذار', 'و روزهای پیش رو را برکت ده'],
+  },
+
+  /**
    * Sūrat ar-Rūm (30), āyah 21 — in full, including the closing clause.
    * This is the verse that fades into colour as you scroll.
    */
@@ -95,50 +122,22 @@ export const site = {
     arabic:
       'وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَاجًا لِّتَسْكُنُوا إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً ۚ إِنَّ فِي ذَٰلِكَ لَآيَاتٍ لِّقَوْمٍ يَتَفَكَّرُونَ',
     reference: 'سورهٔ روم — آیهٔ ۲۱',
-    /**
-     * What the line under the verse says before anything has been touched —
-     * and the only hint that the words can be touched at all.
-     */
-    glossPrompt: 'واژه‌ای را لمس کنید',
-    /**
-     * The verse word by word, in Persian.
-     *
-     * One entry per word of `arabic` above, IN ORDER, counted by splitting
-     * that line on its spaces — which includes the pause mark ۚ standing on
-     * its own. It gets an empty string and stays untouchable.
-     *
-     * Position is the only thing tying a gloss to its word, so the two lists
-     * have to stay exactly the same length: add a word above without adding
-     * its gloss here and every gloss after it lands on the wrong word.
-     * Aya.tsx counts them and quietly turns touching off rather than gloss
-     * the verse wrongly — so if the words stop responding, this is why.
-     *
-     * A plain reading rather than a translation: enough that a guest who does
-     * not read Arabic can follow the sentence, and no more. Worth the
-     * families' eyes on the wording before this goes out.
-     */
-    gloss: [
-      'و از', // وَمِنْ
-      'نشانه‌های او', // آيَاتِهِ
-      'این‌که', // أَنْ
-      'آفرید', // خَلَقَ
-      'برای شما', // لَكُم
-      'از', // مِّنْ
-      'جنس خودتان', // أَنفُسِكُمْ
-      'همسرانی', // أَزْوَاجًا
-      'تا آرام گیرید', // لِّتَسْكُنُوا
-      'در کنار آنان', // إِلَيْهَا
-      'و قرار داد', // وَجَعَلَ
-      'میان شما', // بَيْنَكُم
-      'دوستی', // مَّوَدَّةً
-      'و مهربانی', // وَرَحْمَةً
-      '', // ۚ — a mark of pause, not a word
-      'بی‌گمان', // إِنَّ
-      'در', // فِي
-      'این', // ذَٰلِكَ
-      'نشانه‌هایی است', // لَآيَاتٍ
-      'برای مردمی که', // لِّقَوْمٍ
-      'می‌اندیشند', // يَتَفَكَّرُونَ
+  },
+
+  /**
+   * A devotional couplet, set on its own panel after the verse.
+   *
+   * Transcribed from the card as written. Note the third line reads بأسم
+   * there, where باسم is the usual spelling — left as found rather than
+   * silently corrected.
+   */
+  poem: {
+    /** The invocation, set above the couplet and apart from it. */
+    bismillah: 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',
+    lines: [
+      'على حُبِّ عَلي وفاطمة نمضي',
+      'وعلى حُبِّ سَادتنا الأطهار نسير',
+      'بأسم النورين الحَسن والحُسين',
     ],
   },
 

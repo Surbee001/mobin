@@ -31,7 +31,7 @@ export function Invitation() {
     <section
       ref={scope}
       // Climbs over the aya panel exactly as the aya climbs over the hero.
-      className="relative z-20 -mt-[100dvh] bg-panel-letter"
+      className="relative z-30 -mt-[100dvh] bg-panel-letter"
       style={{ height: `${PANEL_VH * 100}dvh` }}
     >
       <div className="sticky top-0 flex h-[100dvh] items-center justify-center overflow-hidden px-6 sm:px-10">

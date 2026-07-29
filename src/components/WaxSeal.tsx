@@ -49,7 +49,7 @@ export function WaxSeal({ className = '' }: { className?: string }) {
       // 1.5 units it always fell.
       style={{
         filter:
-          'drop-shadow(calc(var(--light-x) * -1.5px) calc(var(--light-y) * -1.5px) 2.5px rgba(74, 54, 28, 0.3))',
+          'drop-shadow(calc(var(--light-x) * -1.5px) calc(var(--light-y) * -1.5px) 2.5px rgba(124, 102, 66, 0.28))',
       }}
     >
       <defs>
@@ -61,10 +61,22 @@ export function WaxSeal({ className = '' }: { className?: string }) {
             *flat* disc of wax — the die squashed it. Open this gradient up
             and shade the rim to match and you get a sphere sitting on the
             paper, which is the one thing it must not look like. */}
+        {/* Gold, not wax — and the difference is the shape of this ramp, not
+            the hue. Wax scatters light, so it darkens once, evenly, away from
+            the source: three stops, bright to dark. Metal *reflects* what is
+            around it, so a polished surface runs bright, dark, bright again,
+            dark — those alternating bands are the environment showing up in
+            it, and they are the whole tell. Flatten them back to a single
+            falloff and it goes straight back to looking like a caramel. */}
         <linearGradient id="wax-dome" gradientUnits="userSpaceOnUse" x1="26" y1="24" x2="94" y2="98">
-          <stop offset="0%" stopColor="#c19a6f" />
-          <stop offset="45%" stopColor="#a8825e" />
-          <stop offset="100%" stopColor="#8a6742" />
+          <stop offset="0%" stopColor="#f4e9cf" />
+          <stop offset="12%" stopColor="#e6d5a8" />
+          <stop offset="26%" stopColor="#c4ab6d" />
+          <stop offset="40%" stopColor="#eee1bb" />
+          <stop offset="54%" stopColor="#bda468" />
+          <stop offset="70%" stopColor="#a68d5c" />
+          <stop offset="84%" stopColor="#cfb87f" />
+          <stop offset="100%" stopColor="#917b52" />
         </linearGradient>
 
         {/* The union the blob is built from — reused as the clip so the
@@ -163,10 +175,10 @@ export function WaxSeal({ className = '' }: { className?: string }) {
 
       {/* ── The wax that ran out from under the die ─────────────── */}
       <g filter="url(#wax-squeeze)" opacity="0.9">
-        <circle cx="60" cy="60" r="39" fill="#8e6b44" />
-        <circle cx="52" cy="57" r="36" fill="#8e6b44" />
-        <circle cx="68" cy="64" r="36" fill="#8e6b44" />
-        <circle cx="60" cy="68" r="36" fill="#8e6b44" />
+        <circle cx="60" cy="60" r="39" fill="#c5af80" />
+        <circle cx="52" cy="57" r="36" fill="#c5af80" />
+        <circle cx="68" cy="64" r="36" fill="#c5af80" />
+        <circle cx="60" cy="68" r="36" fill="#c5af80" />
       </g>
 
       {/* ── The dome, with its light modelled inside the same filter ── */}
@@ -185,7 +197,7 @@ export function WaxSeal({ className = '' }: { className?: string }) {
             cy="60"
             r="36"
             fill="none"
-            stroke="#3a2a15"
+            stroke="#6d5836"
             strokeWidth="3.5"
             opacity="0.2"
             filter="url(#wax-groove)"
@@ -197,17 +209,52 @@ export function WaxSeal({ className = '' }: { className?: string }) {
               rather than parked at a fixed upper-left the way it used to be —
               the offset it once had is now simply what the rest position of
               the lamp produces. Clipped to the blob like everything else here,
-              so it can slide right off the edge without spilling. */}
+              so it can slide right off the edge without spilling.
+
+              Tighter and far brighter than it was as wax. A diffuse surface
+              spreads a highlight out into a broad sheen; a specular one
+              concentrates it, and the narrower and hotter it is the harder
+              the material reads. */}
           <ellipse
             cx="60"
             cy="60"
-            rx="30"
-            ry="24"
-            fill="#fff0d6"
-            opacity="0.11"
+            rx="21"
+            ry="15"
+            fill="#fdf6e4"
+            opacity="0.26"
             filter="url(#wax-soft)"
             style={{
               transform: 'translate(calc(var(--light-x) * 15px), calc(var(--light-y) * 15px))',
+            }}
+          />
+          {/* The hot core of that highlight, small and nearly white. */}
+          <ellipse
+            cx="60"
+            cy="60"
+            rx="8"
+            ry="6"
+            fill="#fdf8ea"
+            opacity="0.24"
+            filter="url(#wax-soft)"
+            style={{
+              transform: 'translate(calc(var(--light-x) * 19px), calc(var(--light-y) * 19px))',
+            }}
+          />
+          {/* Bounce along the rim furthest from the lamp. Metal picks up the
+              room on its shadow side; without this the far edge dies to flat
+              brown and the whole thing reads as a moulded plastic. */}
+          <ellipse
+            cx="60"
+            cy="60"
+            rx="26"
+            ry="21"
+            fill="none"
+            stroke="#f0e3c0"
+            strokeWidth="4"
+            opacity="0.34"
+            filter="url(#wax-soft)"
+            style={{
+              transform: 'translate(calc(var(--light-x) * -13px), calc(var(--light-y) * -13px))',
             }}
           />
         </g>
@@ -223,7 +270,7 @@ export function WaxSeal({ className = '' }: { className?: string }) {
           white keyline around the field rather than as light — so the bottom
           wall is left to the flat tint alone. */}
       <g clipPath="url(#wax-field)">
-        <circle cx="60" cy="60" r="28" fill="#3a2a15" opacity="0.05" />
+        <circle cx="60" cy="60" r="28" fill="#6d5836" opacity="0.05" />
         {/* Shifted AWAY from the lamp, so the arc left inside the clip is the
             wall facing it. At rest that is the two units straight down this
             was drawn with; as the light swings, so does which side of the
@@ -233,7 +280,7 @@ export function WaxSeal({ className = '' }: { className?: string }) {
           cy="60"
           r="27.2"
           fill="none"
-          stroke="#3a2a15"
+          stroke="#6d5836"
           strokeWidth="2.8"
           opacity="0.3"
           filter="url(#wax-groove)"
@@ -243,7 +290,7 @@ export function WaxSeal({ className = '' }: { className?: string }) {
         />
       </g>
       {/* The cut edge of the groove itself. */}
-      <circle cx="60" cy="60" r="28" fill="none" stroke="#4a3620" strokeWidth="1" opacity="0.3" />
+      <circle cx="60" cy="60" r="28" fill="none" stroke="#7d6743" strokeWidth="1" opacity="0.3" />
 
       {/* The monogram, struck *into* the wax: dark along the top edge where the
           depression shades, light along the bottom where it catches.
@@ -263,7 +310,7 @@ export function WaxSeal({ className = '' }: { className?: string }) {
         <text
           x="60"
           y="60"
-          fill="#3a2a15"
+          fill="#6d5836"
           opacity="0.5"
           style={{
             transform: 'translate(calc(var(--light-x) * 0.45px), calc(var(--light-y) * 0.45px))',
@@ -274,7 +321,7 @@ export function WaxSeal({ className = '' }: { className?: string }) {
         <text
           x="60"
           y="60"
-          fill="#ffedd0"
+          fill="#f7edd6"
           opacity="0.26"
           style={{
             transform: 'translate(calc(var(--light-x) * -0.68px), calc(var(--light-y) * -0.68px))',
@@ -282,7 +329,7 @@ export function WaxSeal({ className = '' }: { className?: string }) {
         >
           {site.couple.monogram}
         </text>
-        <text x="60" y="60.1" fill="#96724c">
+        <text x="60" y="60.1" fill="#ad9463">
           {site.couple.monogram}
         </text>
       </g>
