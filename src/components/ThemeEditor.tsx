@@ -54,6 +54,13 @@ const GROUPS: Group[] = [
     ],
   },
   {
+    title: 'Monogram card',
+    swatches: [
+      { token: '--color-mono-ground', label: 'Card' },
+      { token: '--color-mono-ink', label: 'Ink' },
+    ],
+  },
+  {
     title: 'Envelope',
     swatches: [
       { token: '--color-blush', label: 'Back panel' },
@@ -186,7 +193,11 @@ export function ThemeEditor() {
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto px-4 py-3">
+          {/* `min-h-0` is load-bearing. A flex item defaults to `min-height: auto`,
+              which refuses to shrink below its content — so `overflow-y-auto`
+              here has nothing to overflow and the list just pushes the panel
+              past its own max-height instead of scrolling. */}
+          <div className="min-h-0 flex-1 overflow-y-auto px-4 py-3">
             {GROUPS.map((group) => (
               <div key={group.title} className="mb-5 last:mb-0">
                 <div className="mb-2">
@@ -242,10 +253,6 @@ export function ThemeEditor() {
             >
               {copied ? 'Copied' : 'Copy for globals.css'}
             </button>
-            <p className="mt-2 text-[10px] leading-snug text-neutral-400">
-              Paste over the colour block in <code>globals.css</code>. Nothing here
-              persists — a reload returns the page to the stylesheet.
-            </p>
           </div>
         </div>
       )}

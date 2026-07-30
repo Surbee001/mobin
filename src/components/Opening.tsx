@@ -1,29 +1,46 @@
 'use client'
 
 import { memo, useRef } from 'react'
+import Image from 'next/image'
 import { gsap } from 'gsap'
 import { Flip } from 'gsap/Flip'
 import { useGSAP } from '@gsap/react'
 import { Card } from './Card'
+import { CardFramed } from './CardFramed'
+import { CardMonogram } from './CardMonogram'
 import { CardVerse } from './CardVerse'
 import { CARD_LANDED } from './NameLines'
 import { WaxSeal } from './WaxSeal'
 import { useScroll } from './SmoothScroll'
-import { site } from '@/site.config'
+import { site, type HeroDesign } from '@/site.config'
 
 gsap.registerPlugin(Flip, useGSAP)
 
 /**
- * Which of the two designs the invitation is set in — see `design.hero`.
- * Picked once, at module load: both are the same component shape, so the
- * envelope, the Flip and the hero slot do not know or care which is inside.
+ * React must never re-render the card — GSAP moves its DOM node by hand.
+ *
+ * Both are memoised here, at module load, and one of the two is picked per
+ * render. Wrapping the chosen one in `memo()` inside the component would mint
+ * a new component type on every render, and React unmounts and remounts a
+ * subtree whose type changed — taking the card's DOM node with it, out from
+ * under the Flip that is in the middle of moving it.
  */
-const Chosen = site.design.hero === 'verse' ? CardVerse : Card
+const DESIGNS = {
+  card: memo(Card),
+  verse: memo(CardVerse),
+  frame: memo(CardFramed),
+  monogram: memo(CardMonogram),
+} satisfies Record<HeroDesign, unknown>
 
-/** React must never re-render the card — GSAP moves its DOM node by hand. */
-const StableCard = memo(Chosen)
-
-export function Opening() {
+/**
+ * @param design which of the two the invitation is set in. Defaults to
+ *   `site.design.hero`; /verse and /frame each pass their own, so the three
+ *   can be looked at side by side without editing anything. All three are the
+ *   same component shape, so the envelope, the Flip and the hero slot neither
+ *   know nor care which is inside.
+ */
+export function Opening({ design = site.design.hero }: { design?: HeroDesign }) {
+  const StableCard = DESIGNS[design]
   const scope = useRef<HTMLDivElement>(null)
   const cardRef = useRef<HTMLDivElement>(null)
   const moved = useRef(false)
@@ -222,12 +239,43 @@ export function Opening() {
           {/* Front pocket — a rectangle with a chevron cut from its top edge. */}
           <div
             data-front
-            className="absolute inset-0 z-20 bg-blush-deep"
+            className="absolute inset-0 z-20 overflow-hidden bg-blush-deep"
             style={{
               clipPath: 'polygon(0 0, 50% var(--flap), 100% 0, 100% 100%, 0 100%)',
               willChange: 'transform',
             }}
-          />
+          >
+            {/* Peonies embossed into the pocket.
+
+                The plate arrives already embossed — white line work on white
+                paper, with its own lit edges and its own shadows. So it is
+                laid on rather than rebuilt: no masks, no offset copies. What
+                it needs is a way to hand that relief to a sheet of blush
+                paper without also handing over its whiteness.
+
+                `soft-light` does exactly that, and it reads the SOURCE to
+                decide: below mid-grey it darkens what is underneath, above it
+                lightens. So the plate is remapped on disk first, its paper
+                base pushed to mid-grey — which leaves its shadows below the
+                line and its highlights above, and makes the blush beneath
+                come through as the paper being pressed rather than as
+                anything painted on top.
+
+                It rides inside the pocket, so it inherits the chevron clip and
+                travels with it when the envelope opens — same sheet of paper.
+
+                Anchored to the bottom: the flowers grow up off the bottom edge
+                of the plate, so it crops at the top rather than squashing. */}
+            <Image
+              src="/envelope-peonies-v2.webp"
+              alt=""
+              aria-hidden="true"
+              width={1600}
+              height={893}
+              sizes="(max-width: 900px) 88vw, 74vw"
+              className="pointer-events-none absolute inset-x-0 bottom-0 w-full select-none mix-blend-soft-light"
+            />
+          </div>
 
           {/* The flap, hinged on the top edge — two-sided, so that folding it
               back shows the pale inside of the envelope rather than the same
@@ -265,15 +313,24 @@ export function Opening() {
               the width alone — a percentage height would turn it into an
               ellipse the moment the envelope goes portrait.
 
-              The box is wider than the wax: the seal only paints the middle
-              ~⅔ of its own viewBox, so 29% of the envelope here is a blob
-              about 19% of it on screen. The slack doubles as a tap target. */}
+              These are smaller than they were for the SVG seal. That one only
+              painted the middle ~⅔ of its own viewBox and the box was widened
+              to compensate; the photograph fills its box edge to edge, so the
+              box is now the seal. Padding on the button keeps the tap target
+              the size it was without inflating the artwork.
+
+              `mix-blend-darken` lives HERE rather than on the image, and it
+              has to: the seal photograph is on a white ground, and darken is
+              what drops it — but an element blends with the backdrop of its
+              own stacking context, and this button is one. Put the blend on
+              the image inside and it finds only the button's empty box behind
+              it and does nothing at all. */}
           <button
             data-seal
             type="button"
             onClick={open}
             aria-label={site.opening.promptEn}
-            className="absolute left-1/2 top-[var(--flap)] z-40 block aspect-square w-[29%] -translate-x-1/2 -translate-y-1/2 cursor-pointer min-[900px]:w-[24%]"
+            className="absolute left-1/2 top-[var(--flap)] z-40 block aspect-square w-[24%] -translate-x-1/2 -translate-y-1/2 cursor-pointer p-[2.5%] mix-blend-darken min-[900px]:w-[19%]"
             style={{ willChange: 'transform' }}
           >
             <WaxSeal className="block h-full w-full" />

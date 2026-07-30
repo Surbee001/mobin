@@ -18,7 +18,17 @@ export function GET() {
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
     'BEGIN:VEVENT',
+    // One UID for every guest, so a second download replaces the first rather
+    // than sitting beside it — and SEQUENCE is what permits the replacement.
+    // See `calendar.sequence` in site.config.
     'UID:mina-mobin-engagement@invitation',
+    `SEQUENCE:${site.calendar.sequence}`,
+    // When this invitation was last revised. It has to move when the event
+    // does, or a calendar weighing two copies of the same UID has nothing to
+    // tell them apart by; deriving it from the event itself means it can never
+    // be forgotten. Not the current time: that would make the file different
+    // on every request, and an unchanged invitation should download byte for
+    // byte the same.
     `DTSTAMP:${stamp(start)}`,
     `DTSTART:${stamp(start)}`,
     `DTEND:${stamp(end)}`,

@@ -49,6 +49,11 @@
   --color-verse-dim: #cdd17f;
   --color-verse-ink: #3c4432;
 
+  /* The monogram card. Lighter than the envelope it comes out of, so the
+     card still reads as a separate sheet rather than as more of the pocket. */
+  --color-mono-ground: #f2dcd4;
+  --color-mono-ink: #7a5836;
+
   --color-panel-poem: #4e5942; /* the couplet — the one dark band    */
   --color-poem-ink: #efece0;
 
@@ -118,6 +123,10 @@ body {
 }
 
 /* While the envelope is still sealed, the page underneath cannot move. */
+/* `html` as well as `body`: the document element is the thing that actually
+   scrolls, so locking `body` alone leaves it free to be scrolled — which is
+   exactly what a browser's scroll restoration does on reload. */
+html:has(body[data-locked='true']),
 body[data-locked='true'] {
   overflow: hidden;
   height: 100dvh;
@@ -241,6 +250,143 @@ body[data-locked='true'] {
   color: currentColor;
   opacity: 0.88;
   flex: none;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   The monogram card — `design.hero: 'monogram'`.
+
+   The one dark card of the four. Everything is drawn in `--u`, the
+   same unit the other three use, so it scales as one object from
+   inside the envelope to full-screen hero without reproportioning.
+
+   The two initials are set in `em` off their own font-size so that a
+   single number moves each letter AND its offsets together; anything
+   in `--u` here would drift out of register with the glyph as the
+   card resized.
+   ───────────────────────────────────────────────────────────── */
+.card-mono {
+  background-color: var(--color-mono-ground);
+  color: var(--color-mono-ink);
+}
+
+/* Both initials hang off the trim. `overflow: hidden` on the card is what
+   crops them, so they are positioned past its edge rather than inside it. */
+.mono-initial {
+  position: absolute;
+  line-height: 0.78;
+  color: var(--color-mono-ink);
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Script, at the head. Pushed up and left so the bowl of the letter is what
+   sits on the card and its tail runs off the top corner. */
+.mono-initial-top {
+  font-family: var(--font-script), cursive;
+  font-size: calc(62 * var(--u));
+  top: calc(-14 * var(--u));
+  left: calc(4 * var(--u));
+}
+
+/* The display face, at the foot, and deliberately the heavier of the two —
+   a script letter at the same size reads far lighter than a roman one, so
+   matching their point sizes would not match their weight on the page. */
+.mono-initial-bottom {
+  font-family: var(--font-tobias), Georgia, serif;
+  font-weight: 300;
+  font-size: calc(58 * var(--u));
+  bottom: calc(-13 * var(--u));
+  /* Negative, so the letter is cropped by the right trim as well as the
+     bottom one — caught on two edges rather than one, which is what stops it
+     reading as a letter that merely happens to be placed low. */
+  right: calc(-6 * var(--u));
+}
+
+/* The notice sits over both letters, and needs no panel behind it: the
+   initials are the same colour as the type, so where they meet the reading
+   still holds. */
+.mono-notice {
+  width: 100%;
+  padding-inline: calc(12 * var(--u));
+  text-align: center;
+}
+
+.mono-lead {
+  font-family: var(--font-script), cursive;
+  font-size: calc(5.2 * var(--u));
+  line-height: 1.15;
+  color: var(--color-mono-ink);
+}
+
+.mono-name {
+  font-family: var(--font-tobias), Georgia, serif;
+  font-size: calc(9.4 * var(--u));
+  font-weight: 300;
+  letter-spacing: 0.05em;
+  line-height: 1.25;
+  margin-top: calc(2.4 * var(--u));
+  color: var(--color-mono-ink);
+  white-space: nowrap;
+}
+
+.mono-date {
+  font-family: var(--font-tobias), Georgia, serif;
+  font-size: calc(4 * var(--u));
+  font-weight: 300;
+  line-height: 1.45;
+  margin-top: calc(2.6 * var(--u));
+  color: var(--color-mono-ink);
+  opacity: 0.9;
+}
+
+.mono-footer {
+  font-family: var(--font-tobias), Georgia, serif;
+  font-size: calc(2.5 * var(--u));
+  font-weight: 400;
+  letter-spacing: 0.3em;
+  /* The tracking adds a trailing gap that would read as off-centre. */
+  text-indent: 0.3em;
+  margin-top: calc(3.4 * var(--u));
+  color: var(--color-mono-ink);
+  opacity: 0.75;
+}
+
+/* Landscape — once the card has room, it is 55 units deep rather than 140,
+   so every vertical measure has to come back in proportion. */
+@container (min-width: 560px) {
+  /* Much smaller than the portrait card wants, and pushed harder into the
+     corners. Landscape is barely half as deep as it is wide, so a letter
+     sized as a fraction of the WIDTH — which `--u` is — grows into the
+     notice from both ends. At the first pass the foot of the M sat straight
+     through 'FORMAL INVITATION TO FOLLOW'. */
+  .mono-initial-top {
+    font-size: calc(30 * var(--u));
+    top: calc(-7 * var(--u));
+    left: calc(2.5 * var(--u));
+  }
+  .mono-initial-bottom {
+    font-size: calc(28 * var(--u));
+    bottom: calc(-6.5 * var(--u));
+    right: calc(-2 * var(--u));
+  }
+  .mono-notice {
+    padding-inline: calc(26 * var(--u));
+  }
+  .mono-lead {
+    font-size: calc(3.4 * var(--u));
+  }
+  .mono-name {
+    font-size: calc(6.6 * var(--u));
+    margin-top: calc(1.6 * var(--u));
+  }
+  .mono-date {
+    font-size: calc(2.7 * var(--u));
+    margin-top: calc(1.8 * var(--u));
+  }
+  .mono-footer {
+    font-size: calc(1.8 * var(--u));
+    margin-top: calc(2.4 * var(--u));
+  }
 }
 
 /* A hairline rule, the weight of a letterpress keyline. */
@@ -499,6 +645,95 @@ body[data-locked='true'] {
 }
 
 /* ─────────────────────────────────────────────────────────────
+   The third hero — `design.hero: 'frame'`. The names alone, inside an
+   engraved border.
+   ───────────────────────────────────────────────────────────── */
+.card-plate {
+  /* The border blends with `multiply`, and a blend reaches for its backdrop
+     through every ancestor until it finds a stacking context. Without this it
+     would find one somewhere up the page and multiply against whatever else
+     happened to be behind the card — the envelope, mid-flight, among other
+     things. Isolated, it can only ever see the card's own paper. */
+  isolation: isolate;
+}
+
+/* The border.
+   
+   A flat fill of the site's pink, masked to the shape of the engraved sheet —
+   rather than the photograph itself, tinted. Two reasons. The colour is then a
+   palette variable, so the border follows the theme like everything else does;
+   and there is no white to dispose of, because the mask carries alpha and the
+   paper simply is not covered. The earlier version blended the photograph with
+   `multiply`, which worked, but its white was 243 rather than 255 and tinted
+   the paper by a few percent everywhere it reached — drawing a faint rectangle
+   wherever the artwork stopped short of the card's edge.
+
+   The mask was built from the photograph by taking the sheet's own level as
+   fully transparent and its deepest shadow as fully opaque, so what remains is
+   exactly the relief. See the note in CardFramed.tsx.
+
+   `cover` on a landscape card, so the border reaches all four edges of the
+   screen instead of sitting inside a margin. It is a 16:9 sheet and a laptop
+   is near enough that to lose only two or three percent off the top and
+   bottom — far less than the bands of bare paper `contain` leaves down either
+   side. A portrait card keeps `contain`: there, `cover` would scale the sheet
+   to the height and crop away everything but a narrow strip down the middle,
+   taking all four corners of the ornament with it. */
+.plate-art {
+  position: absolute;
+  inset: 0;
+  background-color: var(--color-blush-deep);
+  -webkit-mask-image: url('/frame-mask.webp');
+  mask-image: url('/frame-mask.webp');
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  pointer-events: none;
+}
+
+/* Sized to sit inside the clear middle of the border rather than to fill the
+   card: the ornament closes in from both sides, and the names have to stop
+   well short of it. */
+.plate-names {
+  text-align: center;
+}
+
+/* The date, written under the names — the one line on this design that is not
+   set in capitals, and the only thing softening a plate that is otherwise two
+   words and a border. */
+.plate-date {
+  font-family: var(--font-script), cursive;
+  font-size: calc(4.2 * var(--u));
+  line-height: 1.2;
+  padding-top: calc(2.4 * var(--u));
+}
+
+.plate-name {
+  font-size: calc(8 * var(--u));
+  font-weight: 100;
+  line-height: 1;
+  letter-spacing: -0.012em;
+  white-space: nowrap;
+}
+
+@container (min-width: 560px) {
+  .plate-art {
+    -webkit-mask-size: cover;
+    mask-size: cover;
+  }
+  .plate-name {
+    font-size: calc(7 * var(--u));
+  }
+  .plate-date {
+    font-size: calc(3 * var(--u));
+    padding-top: calc(1.8 * var(--u));
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
    The alternate hero — `design.hero: 'verse'`. A poster: two lines, the
    names on one line, two lines. Drawn in the same `--u` as the other design,
    so it scales as one object and fits a short window the same way.
@@ -536,11 +771,15 @@ body[data-locked='true'] {
 
 @container (min-width: 560px) {
   .card-verse {
-    gap: calc(8 * var(--u));
+    gap: calc(5 * var(--u));
     padding-inline: calc(8 * var(--u));
   }
+  /* Set against the names, not against what looks readable on its own: the
+     smaller this is, the further the kashidas have to stretch each line to
+     reach the same width, and past a point the connectors read as rules with
+     letters sitting on them. */
   .verse-line {
-    font-size: calc(2.3 * var(--u));
+    font-size: calc(3.4 * var(--u));
     line-height: 2;
   }
   .verse-name {

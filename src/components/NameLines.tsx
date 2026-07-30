@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { gsap } from 'gsap'
 import { useGSAP } from '@gsap/react'
-import { kashidaJoins, kashidaTotal } from './kashida'
+import { kashidaTotal } from './kashida'
+import { kashidaCounts } from './kashidaFit'
 
 gsap.registerPlugin(useGSAP)
 
@@ -40,28 +41,12 @@ const STAGGER = 0.08
 /** Slightly past the window's own edge, so nothing clips a hair short. */
 const TRAVEL = 110
 
-/** The size the fit below measures at — big, so rounding to a whole tatweel
- *  is a small error rather than a visible one. */
-const MEASURE_PX = 400
-
 export type NameLine = { en: string; fa: string }
 
 /**
  * How many tatweels each Persian line needs to come out the same width as the
- * widest English line.
- *
- * Kashida rather than letter-spacing: prising the joins apart breaks the word,
- * where a tatweel elongates the connecting stroke and the letters stay joined.
- * See kashida.ts.
- *
- * Measured on a canvas rather than in the DOM — no layout, no reflow, and it
- * can be done at one fixed size instead of whatever size the card happens to
- * be at. The answer is the same either way: everything on the card is sized in
- * one unit, so the ratio between the two settings holds at every scale, and
- * the count only has to be worked out once.
- *
- * Width grows linearly with the number of strokes, so one division lands on
- * the answer with no searching.
+ * widest English line — so the block holds its shape as the two settings swap.
+ * See kashidaFit.ts.
  */
 function useKashidaFit(root: React.RefObject<HTMLDivElement | null>, lines: NameLine[]) {
   const [stretch, setStretch] = useState<number[]>(() => lines.map(() => 0))
@@ -70,37 +55,15 @@ function useKashidaFit(root: React.RefObject<HTMLDivElement | null>, lines: Name
     let alive = true
 
     const fit = () => {
-      const ctx = document.createElement('canvas').getContext('2d')
       const en = root.current?.querySelectorAll<HTMLElement>('[data-name-en]')
       const fa = root.current?.querySelectorAll<HTMLElement>('[data-name-fa]')
-      if (!alive || !ctx || !en || !fa || en.length !== lines.length) return
-
-      const width = (style: CSSStyleDeclaration, px: number, text: string) => {
-        ctx.font = `${style.fontStyle} ${style.fontWeight} ${px}px ${style.fontFamily}`
-        return ctx.measureText(text).width
-      }
-
-      // One target for every setting — the widest of them — so the lines come
-      // out the same width as each other, not merely each the width of its own
-      // counterpart.
-      const target = Math.max(
-        ...lines.map((line, i) => width(getComputedStyle(en[i]), MEASURE_PX, line.en)),
-      )
+      if (!alive || !en || !fa || en.length !== lines.length) return
 
       setStretch(
-        lines.map((line, i) => {
-          const faStyle = getComputedStyle(fa[i])
-          // The Persian is set larger than the Latin; measuring both at one
-          // nominal size would throw that away, so carry the ratio across.
-          const scale = parseFloat(faStyle.fontSize) / parseFloat(getComputedStyle(en[i]).fontSize)
-          const px = MEASURE_PX * scale
-
-          const bare = width(faStyle, px, line.fa)
-          const stroke = width(faStyle, px, 'ـ')
-          if (stroke <= 0 || kashidaJoins(line.fa) === 0) return 0
-
-          return Math.max(0, Math.round((target - bare) / stroke))
-        }),
+        kashidaCounts(
+          lines.map((line, i) => ({ style: getComputedStyle(en[i]), text: line.en })),
+          lines.map((line, i) => ({ style: getComputedStyle(fa[i]), text: line.fa })),
+        ),
       )
     }
 

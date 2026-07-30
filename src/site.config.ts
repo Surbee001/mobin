@@ -5,15 +5,19 @@
  * ─────────────────────────────────────────────────────────────
  */
 
-/** The two hero designs. See `design.hero`. */
+/** The four hero designs. See `design.hero`. */
 export type HeroDesign =
   /** The invitation card: names over two lines, three columns at the foot. */
   | 'card'
   /** The poster: two lines, the names on one line, two lines. */
   | 'verse'
+  /** The plate: the names alone, inside an engraved border. */
+  | 'frame'
+  /** The monogram: two initials the height of the card, the notice between. */
+  | 'monogram'
 
 export const site = {
-  /** Which design is showing. Change it here and reload — both are built. */
+  /** Which design is showing. Change it here and reload — all four are built. */
   design: {
     hero: 'card' as HeroDesign,
   },
@@ -39,29 +43,50 @@ export const site = {
     /** The italic pair either side of the rule at the top of the card. */
     oneFull: 'Mina Akhoondi',
     twoFull: 'Mobin Yousefi',
+    /**
+     * The pair on one line, for the designs that set them side by side rather
+     * than stacked. Both settings, because the line swaps language like the
+     * stacked one does — and the `&` is in the Persian too, as the mark the
+     * two names meet at rather than as a word.
+     */
+    pair: { en: 'MINA & MOBIN', fa: 'مینا & مبین' },
+    /**
+     * The two initials, for the monogram design — one set in script at the
+     * head of the card and one in the display face at its foot, both run off
+     * the edge. Kept separate from the names rather than sliced off them: the
+     * pair happen to share a letter here, and a design that leans on that
+     * should say so out loud rather than compute it and look like a bug.
+     */
+    initials: { one: 'M', two: 'M' },
     /** Initials pressed into the wax seal. */
     monogram: 'M&M',
   },
 
   /**
    * The date & time of the event.
-   * ISO 8601 with an explicit UTC offset — this is what the
-   * countdown and the calendar link both read from.
-   * Example below is 8:00 PM Tehran time (+03:30).
+   *
+   * ISO 8601 with an explicit UTC offset — the countdown, the four phases it
+   * moves through, and the calendar file all read from it, so this one field
+   * is the whole schedule. +03:30 is Tehran, all year: Iran stopped observing
+   * daylight saving in 2022, so there is no summer offset to catch anyone out.
    */
   event: {
     /**
      * The Gregorian instant. The countdown and the .ics calendar file both
      * read from THIS field, not from `cardDate` below — so if the Hijri date
      * on the card moves, this has to move with it.
+     *
+     * 2026-08-30 is 17 Rabiʻ al-Awwal 1448 by the Umm al-Qura calendar.
+     * Civil-tabular reckoning puts that a day later, on the 31st — worth
+     * confirming against whichever the families are going by.
      */
-    iso: '2026-09-18T20:00:00+03:30',
+    iso: '2026-08-30T23:00:00+03:30',
     /** The one line beneath the names on the card. */
     cardDate: "17 Rabi'",
     /** The line under the hero, on the scroll cue. */
     dateLine: "17 Rabi'",
     /** Persian date line, shown in the invitation section. */
-    dateFa: 'جمعه ۲۷ شهریور ۱۴۰۵ — ساعت ۸ شب',
+    dateFa: 'یکشنبه ۸ شهریور ۱۴۰۵ — ساعت ۱۱ شب',
   },
 
   /**
@@ -102,15 +127,16 @@ export const site = {
    * The alternate hero, `design.hero: 'verse'`. Two lines above the names and
    * two below, and nothing else on the card at all.
    *
-   * Keep every line SHORT. They are set on one line each and stretched with
-   * kashidas on top of that; a line long enough to wrap breaks the shape the
-   * whole design rests on.
+   * Each line is set on one line and stretched with kashidas until it is the
+   * width of the names. That sets the length: too SHORT and the stretching has
+   * to do all the work, and the line arrives as a row of long dashes with
+   * letters scattered along it; too LONG and it is already wider than the
+   * names and wraps, which takes the whole shape with it. Thirty to forty
+   * characters is the window.
    */
   verse: {
-    above: ['با تمام عشق و شادی', 'آغاز فصلی تازه از داستان ما'],
-    /** One line, both settings — this design sets the pair side by side. */
-    names: { en: 'MINA & MOBIN', fa: 'مینا & مبین' },
-    below: ['خداوندا میان ما مهر بگذار', 'و روزهای پیش رو را برکت ده'],
+    above: ['با تمام عشق و شادی، در آغاز فصلی تازه', 'دوست داریم این روز را با شما قسمت کنیم'],
+    below: ['خداوندا میان ما مهر و مهربانی بگذار', 'و روزهای پیش رویمان را برکت ده'],
   },
 
   /**
@@ -158,6 +184,17 @@ export const site = {
     ],
     /** The sign-off. */
     signature: 'خانواده‌های آخوندی و یوسفی',
+  },
+
+  /**
+   * The notice at the centre of the monogram card. English, like the rest of
+   * the card faces — the Persian on this site all lives below the hero.
+   */
+  monogram: {
+    /** Two lines of script above the names. */
+    lead: ['Save the date', 'for the engagement of'],
+    /** Under the date. Set in wide small capitals. */
+    footer: 'FORMAL INVITATION TO FOLLOW',
   },
 
   /** Where it happens. */
@@ -221,8 +258,25 @@ export const site = {
     label: 'افزودن به تقویم',
     /** Title of the event as it appears in the guest's calendar. */
     eventTitle: 'جشن نامزدی مینا و مبین',
-    /** How long the event runs, in minutes. */
+    /** How long the event runs, in minutes. 240 from 11pm ends it at 3am. */
     durationMinutes: 240,
+    /**
+     * The revision number of the invitation, as calendars understand it.
+     *
+     * Every guest's copy carries the same UID, which is what lets a second
+     * download replace the first rather than sit beside it as a duplicate.
+     * But a calendar only accepts the replacement if this number is HIGHER
+     * than the one it already has — with an unchanging sequence, someone who
+     * added the event before the date moved keeps the old time for ever, and
+     * nothing about the site tells them otherwise.
+     *
+     * So: bump it by one whenever the date, the time, the length or the venue
+     * changes. It costs nothing to bump needlessly and it costs a guest the
+     * evening not to bump when it mattered.
+     *
+     * 0 → 1: moved from 18 September, 8pm to 30 August, 11pm.
+     */
+    sequence: 1,
   },
 
   /** The prompt on the sealed envelope, before it is opened. */
