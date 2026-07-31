@@ -415,14 +415,12 @@ body[data-locked='true'] {
      background and before its siblings, all of which are `relative` and so
      come later in the same paint step by document order. */
   z-index: 0;
-  background-image: url('/garden-relief-v2.webp');
-  /* Portrait keeps `cover`. The plate is a wide landscape scene, and a
-     portrait card is far taller than it — contained there it shrinks to a
-     band floating across the middle with bare card above and below, which
-     reads as a stray image rather than as the surface. Cover crops it, but
-     what survives still fills the card. */
-  background-size: cover;
-  background-position: center;
+  background-image: url('/garden-relief-portrait.webp');
+  /* Portrait plate, authored for a tall card: open field above, garden
+     carved into the foot. Contained and anchored to the bottom so the swans
+     and bridge sit where the type leaves off rather than floating mid-card. */
+  background-size: contain;
+  background-position: center bottom;
   background-repeat: no-repeat;
   mix-blend-mode: soft-light;
   opacity: 0.55;
@@ -640,7 +638,9 @@ body[data-locked='true'] {
      uncovered is not painted at all, and a soft-light layer that paints
      nothing has no effect, so there is no visible band. */
   .card-garden {
+    background-image: url('/garden-relief-v2.webp');
     background-size: contain;
+    background-position: center;
   }
 
   .card {
