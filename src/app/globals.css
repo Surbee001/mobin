@@ -49,12 +49,16 @@
   --color-verse-dim: #cdd17f;
   --color-verse-ink: #3c4432;
 
+  /* The flat pink under the garden relief — see SiteTexture. */
+  --color-texture-wash: #f6e4de;
+
   /* The monogram card. Lighter than the envelope it comes out of, so the
      card still reads as a separate sheet rather than as more of the pocket. */
   --color-mono-ground: #f2dcd4;
   --color-mono-ink: #7a5836;
 
   --color-panel-poem: #4e5942; /* the couplet — the one dark band    */
+  --color-poem-dim: #5a6550;
   --color-poem-ink: #efece0;
 
   --color-panel-letter: #ebd1c8; /* the invitation                     */
@@ -389,6 +393,41 @@ body[data-locked='true'] {
   }
 }
 
+/* ─────────────────────────────────────────────────────────────
+   The garden pressed into the card.
+
+   The plate is high-passed, so its open middle sits on a true
+   neutral and `soft-light` leaves the card alone everywhere there
+   is no carving — which is what keeps the names readable over it.
+
+   Held very low. This is the surface the invitation is printed on,
+   not a picture behind it; the moment it competes with the type it
+   has stopped being paper.
+   ───────────────────────────────────────────────────────────── */
+.card-garden {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  /* Zero, not negative. `.card` is `relative` with no z-index, so it does
+     NOT form a stacking context — and a negative child escapes past it to
+     the nearest ancestor that does, which put the garden behind the card
+     entirely and showed nothing at all. At 0 it paints after the card's
+     background and before its siblings, all of which are `relative` and so
+     come later in the same paint step by document order. */
+  z-index: 0;
+  background-image: url('/garden-relief-v2.webp');
+  /* Portrait keeps `cover`. The plate is a wide landscape scene, and a
+     portrait card is far taller than it — contained there it shrinks to a
+     band floating across the middle with bare card above and below, which
+     reads as a stray image rather than as the surface. Cover crops it, but
+     what survives still fills the card. */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  mix-blend-mode: soft-light;
+  opacity: 0.55;
+}
+
 /* A hairline rule, the weight of a letterpress keyline. */
 .rule {
   height: 1px;
@@ -595,6 +634,15 @@ body[data-locked='true'] {
    are sized so the frame lands well clear of this threshold on either side,
    never straddling it. */
 @container (min-width: 560px) {
+  /* Once the card is landscape it is close enough in shape to the plate to
+     show the whole thing — so the frame stops being cropped at the top and
+     bottom edges, which is the whole point of the artwork. The strip left
+     uncovered is not painted at all, and a soft-light layer that paints
+     nothing has no effect, so there is no visible band. */
+  .card-garden {
+    background-size: contain;
+  }
+
   .card {
     aspect-ratio: 7 / 5;
     /* Three columns instead of three stacked blocks: the landscape card is
@@ -642,6 +690,44 @@ body[data-locked='true'] {
     width: calc(1.8 * var(--u));
     height: calc(8 * var(--u));
   }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   The pattern on the front of the envelope.
+
+   Traced off the sheet in the envelope editor — see EnvelopeEditor.tsx —
+   and built in from what it copied out. The numbers are that trace, not
+   anything chosen by hand: the size is the reciprocal of the piece taken
+   from the sheet, the position anchors that piece, and the polygon is its
+   outline, so the flowers are kept and the empty middle of the arch is not.
+
+   The outline arrived as 212 points, which is what tracing freehand gives
+   you. It is 33 here, simplified to within half a percent of the original —
+   near enough that nothing moves by a pixel at the size this is ever seen,
+   and short enough to read.
+   ───────────────────────────────────────────────────────────── */
+.pocket-pattern {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: url('/garden-arch.webp');
+  background-size: 100% 119.49%;
+  background-position: 50% 100%;
+  background-repeat: no-repeat;
+  /* Multiply, so the flowers print into the blush rather than sitting on it —
+     and held well back, because at full strength the pattern competes with
+     the seal for the front of the envelope. */
+  mix-blend-mode: multiply;
+  opacity: 0.47;
+  clip-path: polygon(
+    2.3% 25.68%, 7.82% 19.77%, 10.34% 14.79%, 11.69% 13.71%, 14.84% 13.35%,
+    19.64% 27.31%, 20.89% 28.52%, 22.44% 28.52%, 26.46% 25.69%, 28.09% 25.52%,
+    29.78% 25.6%, 32.66% 27.73%, 33.72% 29.28%, 37.42% 42.09%, 45.39% 58.86%,
+    53.14% 65.36%, 57.77% 66.34%, 63.02% 61.66%, 71.42% 46.26%, 76.26% 35.09%,
+    76.75% 31.45%, 79.7% 26.7%, 80.03% 17.63%, 82.78% 10.4%, 93.17% 0.37%,
+    98.1% 0%, 99.17% 1.57%, 100% 6.27%, 100% 99.51%, 0% 100%,
+    0% 32.11%, 1.19% 22.06%, 1.59% 25.88%
+  );
 }
 
 /* ─────────────────────────────────────────────────────────────

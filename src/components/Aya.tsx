@@ -37,6 +37,24 @@ export function Aya() {
     >
       <div className="sticky top-0 flex h-[100dvh] items-center justify-center overflow-hidden px-6 sm:px-10">
         <div className="mx-auto w-full max-w-5xl text-center">
+          {/* The invocation, opening the verse rather than belonging to it —
+              smaller, set back, and with clear air beneath.
+
+              Deliberately NOT kashida-stretched: a fixed formula is not mine
+              to open out programmatically. It carries `data-reveal-text` like
+              everything else here, so it resolves out of the panel colour in
+              document order — first, which is the right reading order for
+              something that opens a passage. */}
+          <p
+            data-reveal-text
+            dir="rtl"
+            lang="ar"
+            className="mb-12 font-arabic leading-[1.8] opacity-80 sm:mb-16"
+            style={{ fontSize: 'clamp(1rem, 2.3vw, 1.6rem)' }}
+          >
+            {site.aya.bismillah}
+          </p>
+
           <p
             data-reveal-text
             dir="rtl"

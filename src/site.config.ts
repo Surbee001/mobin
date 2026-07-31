@@ -19,7 +19,7 @@ export type HeroDesign =
 export const site = {
   /** Which design is showing. Change it here and reload — all four are built. */
   design: {
-    hero: 'card' as HeroDesign,
+    hero: 'monogram' as HeroDesign,
   },
 
   /** Shown in the browser tab / when the link is shared. */
@@ -144,6 +144,8 @@ export const site = {
    * This is the verse that fades into colour as you scroll.
    */
   aya: {
+    /** The invocation, set above the verse and apart from it. */
+    bismillah: 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',
     /** Keep this as one continuous string — it is split per-word. */
     arabic:
       'وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَاجًا لِّتَسْكُنُوا إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً ۚ إِنَّ فِي ذَٰلِكَ لَآيَاتٍ لِّقَوْمٍ يَتَفَكَّرُونَ',
@@ -158,8 +160,6 @@ export const site = {
    * silently corrected.
    */
   poem: {
-    /** The invocation, set above the couplet and apart from it. */
-    bismillah: 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',
     lines: [
       'على حُبِّ عَلي وفاطمة نمضي',
       'وعلى حُبِّ سَادتنا الأطهار نسير',

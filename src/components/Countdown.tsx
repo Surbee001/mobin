@@ -4,8 +4,6 @@ import { Fragment, useRef, useSyncExternalStore } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useGSAP } from '@gsap/react'
-import Image from 'next/image'
-import { CalendarPlus, MapPin } from '@phosphor-icons/react'
 import { site } from '@/site.config'
 import { kashida } from './kashida'
 import { phaseAt, START, type Phase } from './eventPhase'
@@ -48,22 +46,6 @@ const getServerSnapshot = () => null
 /** Persian numerals, zero-padded to two places. */
 const fa = (n: number) => n.toLocaleString('fa-IR', { minimumIntegerDigits: 2, useGrouping: false })
 
-/**
- * The meadow, before and after.
- *
- * The artwork is greyscale line work, so the warmth is entirely in the filter
- * — which means the flush on the day itself is a change of filter and nothing
- * else. `dim` is the everyday setting: a sepia that takes the blue off the
- * scan and lifts the ground a little. `bloom` pushes the same line work
- * rosier and a good deal richer, and it is what the section wears from
- * midnight on the day onward. The transition is slow enough that nobody
- * watches it happen; the page is simply warmer than it was last week.
- */
-const MEADOW = {
-  dim: 'sepia(0.62) saturate(1.35) hue-rotate(3deg) brightness(0.99)',
-  bloom: 'sepia(0.78) saturate(2.5) hue-rotate(-13deg) brightness(1.02)',
-}
-
 /** What stands above the clock, in each of the four settings. */
 const EYEBROW: Record<Phase, string> = {
   before: site.countdown.eyebrow,
@@ -73,8 +55,12 @@ const EYEBROW: Record<Phase, string> = {
 }
 
 /**
- * The closing section: how long is left, and the one thing a guest might
- * want to do about it. There is no nav and no footer beyond this.
+ * How long is left.
+ *
+ * No longer the last section — the address follows it, because an address is
+ * what a guest comes back to look up and the clock is what they read once.
+ * So the page's ending furniture (the meadow, the confetti, the calendar
+ * button) lives on <Location> now, and this is the clock alone.
  *
  * It moves through four settings as the evening approaches and passes — see
  * eventPhase.ts for where the boundaries come from, and the note above
@@ -122,48 +108,9 @@ export function Countdown() {
   return (
     <section
       ref={scope}
-      id="finale"
       dir="rtl"
-      className="relative z-40 flex flex-col items-center justify-center overflow-hidden bg-paper px-6 pb-[46vw] pt-32 sm:pb-[34vw] sm:pt-44"
+      className="relative z-40 flex flex-col items-center justify-center bg-paper px-6 pb-32 pt-32 sm:pb-40 sm:pt-44"
     >
-      {/* A meadow along the bottom edge.
-
-          The artwork is line work on solid white, so `multiply` is what makes
-          it sit on the page: white multiplied by the background *is* the
-          background, so the paper shows straight through and only the drawn
-          lines survive. No cut-out needed.
-
-          The top is masked rather than covered with a gradient the colour of
-          the page. Same look, but it keeps working if the background ever
-          changes — and a cream gradient laid over a multiplying layer would
-          have multiplied too, and dirtied the fade. */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 bottom-0 select-none"
-        style={{
-          maskImage: 'linear-gradient(to top, black 32%, transparent 92%)',
-          WebkitMaskImage: 'linear-gradient(to top, black 32%, transparent 92%)',
-        }}
-      >
-        <Image
-          src="/flowers.webp"
-          alt=""
-          width={2400}
-          height={1326}
-          sizes="100vw"
-          className="w-full mix-blend-multiply"
-          // Greyscale on disk, warmed here — it arrives blue, which would be
-          // the only cool colour on an otherwise warm page. The sepia lifts
-          // the white ground very slightly too, which reads as a soft warm
-          // glow along the bottom edge rather than a flat cut-off. From the
-          // day of the wedding onward it flushes; see MEADOW.
-          style={{
-            filter: phase === 'before' ? MEADOW.dim : MEADOW.bloom,
-            transition: 'filter 2.6s ease',
-          }}
-        />
-      </div>
-
       <span
         data-reveal
         aria-label={EYEBROW[phase]}
@@ -214,30 +161,6 @@ export function Countdown() {
         </p>
       )}
 
-      {/* On the night itself the only useful thing this page can offer is the
-          way there — an entry in a calendar for an event already under way is
-          no use to anybody. Afterwards it offers nothing at all. */}
-      {phase === 'during' ? (
-        <a
-          data-reveal
-          href={site.location.mapUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="btn relative mt-20 font-persian text-[1.15rem] font-light"
-        >
-          <MapPin size={20} weight="bold" aria-hidden="true" />
-          {site.location.linkLabel}
-        </a>
-      ) : phase === 'after' ? null : (
-        <a
-          data-reveal
-          href="/api/calendar"
-          className="btn relative mt-20 font-persian text-[1.15rem] font-light"
-        >
-          <CalendarPlus size={20} weight="bold" aria-hidden="true" />
-          {site.calendar.label}
-        </a>
-      )}
     </section>
   )
 }

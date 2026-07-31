@@ -1,7 +1,6 @@
 'use client'
 
 import { memo, useRef } from 'react'
-import Image from 'next/image'
 import { gsap } from 'gsap'
 import { Flip } from 'gsap/Flip'
 import { useGSAP } from '@gsap/react'
@@ -245,36 +244,11 @@ export function Opening({ design = site.design.hero }: { design?: HeroDesign }) 
               willChange: 'transform',
             }}
           >
-            {/* Peonies embossed into the pocket.
-
-                The plate arrives already embossed — white line work on white
-                paper, with its own lit edges and its own shadows. So it is
-                laid on rather than rebuilt: no masks, no offset copies. What
-                it needs is a way to hand that relief to a sheet of blush
-                paper without also handing over its whiteness.
-
-                `soft-light` does exactly that, and it reads the SOURCE to
-                decide: below mid-grey it darkens what is underneath, above it
-                lightens. So the plate is remapped on disk first, its paper
-                base pushed to mid-grey — which leaves its shadows below the
-                line and its highlights above, and makes the blush beneath
-                come through as the paper being pressed rather than as
-                anything painted on top.
-
-                It rides inside the pocket, so it inherits the chevron clip and
-                travels with it when the envelope opens — same sheet of paper.
-
-                Anchored to the bottom: the flowers grow up off the bottom edge
-                of the plate, so it crops at the top rather than squashing. */}
-            <Image
-              src="/envelope-peonies-v2.webp"
-              alt=""
-              aria-hidden="true"
-              width={1600}
-              height={893}
-              sizes="(max-width: 900px) 88vw, 74vw"
-              className="pointer-events-none absolute inset-x-0 bottom-0 w-full select-none mix-blend-soft-light"
-            />
+            {/* The pattern, traced off the sheet in the envelope editor and
+                built in from what it copied out. It rides INSIDE the pocket,
+                so it inherits the chevron clip and travels with it when the
+                envelope opens — same sheet of paper. */}
+            <div className="pocket-pattern" aria-hidden="true" />
           </div>
 
           {/* The flap, hinged on the top edge — two-sided, so that folding it
@@ -291,6 +265,7 @@ export function Opening({ design = site.design.hero }: { design?: HeroDesign }) 
             }}
           >
             <div
+              data-flap-out
               className="absolute inset-0 bg-blush-mid"
               style={{
                 clipPath: 'polygon(0 0, 100% 0, 50% 100%)',
@@ -300,6 +275,7 @@ export function Opening({ design = site.design.hero }: { design?: HeroDesign }) 
             {/* Mirrored clip: this face is turned over, so the triangle has to
                 be authored upside down to land pointing down on screen. */}
             <div
+              data-flap-in
               className="absolute inset-0 bg-blush"
               style={{
                 clipPath: 'polygon(0 100%, 100% 100%, 50% 0)',

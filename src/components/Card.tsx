@@ -58,6 +58,9 @@ export const Card = forwardRef<HTMLDivElement, { className?: string }>(function 
     // Flip moves this element, so the container must live here.
     <div ref={root} dir="ltr" className={`card-frame ${className}`}>
       <div className="card paper relative flex flex-col justify-between overflow-hidden">
+        {/* The garden, pressed into the card itself rather than laid behind
+            the page. See `.card-garden` in globals.css. */}
+        <span className="card-garden" aria-hidden="true" />
         {/* ── Top: the two of them, either side of a rule ───────── */}
         <header className="card-topline relative flex items-center">
           <span className="card-topname deboss text-ink">{couple.oneFull}</span>

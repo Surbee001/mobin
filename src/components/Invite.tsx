@@ -8,6 +8,7 @@ import { Location } from '@/components/Location'
 import { Countdown } from '@/components/Countdown'
 import { Confetti } from '@/components/Confetti'
 import { Music } from '@/components/Music'
+import { EnvelopeEditor } from '@/components/EnvelopeEditor'
 import { ThemeEditor } from '@/components/ThemeEditor'
 import { site, type HeroDesign } from '@/site.config'
 
@@ -30,8 +31,8 @@ export function Invite({ design = site.design.hero }: { design?: HeroDesign }) {
         <Aya />
         <Poem />
         <Invitation />
-        <Location />
         <Countdown />
+        <Location />
       </main>
 
       {/* Fires once, when the closing section comes into view. */}
@@ -40,7 +41,8 @@ export function Invite({ design = site.design.hero }: { design?: HeroDesign }) {
       {/* Starts at the Persian invitation, then loops. */}
       <Music />
 
-      {/* Development only — it returns null in a production build. */}
+      {/* Development only — both return null in a production build. */}
+      <EnvelopeEditor />
       <ThemeEditor />
     </SmoothScroll>
   )

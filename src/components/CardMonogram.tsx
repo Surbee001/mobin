@@ -47,6 +47,10 @@ export const CardMonogram = forwardRef<HTMLDivElement, { className?: string }>(
     return (
       <div ref={root} dir="ltr" className={`card-frame ${className}`}>
         <div className="card card-mono relative flex flex-col items-center justify-center overflow-hidden">
+          {/* The garden, pressed into the card. See `.card-garden` in
+              globals.css — and note the z-index note there, which is why this
+              is 0 and not negative. */}
+          <span className="card-garden" aria-hidden="true" />
           {/* The two initials. Decorative — the names are set in full in the
               middle of the card, so a screen reader that read these as well
               would hear the letter M three times over. */}

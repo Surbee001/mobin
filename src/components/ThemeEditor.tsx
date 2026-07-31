@@ -197,7 +197,10 @@ export function ThemeEditor() {
               which refuses to shrink below its content — so `overflow-y-auto`
               here has nothing to overflow and the list just pushes the panel
               past its own max-height instead of scrolling. */}
-          <div className="min-h-0 flex-1 overflow-y-auto px-4 py-3">
+          {/* Lenis takes over the wheel for the whole document, so a panel that
+              scrolls on its own has to say so. Without this the page behind
+              moves and the list under the pointer does not. */}
+          <div data-lenis-prevent className="min-h-0 flex-1 overflow-y-auto px-4 py-3">
             {GROUPS.map((group) => (
               <div key={group.title} className="mb-5 last:mb-0">
                 <div className="mb-2">

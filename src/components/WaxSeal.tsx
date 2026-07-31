@@ -1,7 +1,6 @@
 'use client'
 
 import Image from 'next/image'
-import { site } from '@/site.config'
 
 /**
  * The wax seal.
@@ -42,8 +41,8 @@ import { site } from '@/site.config'
 export function WaxSeal({ className = '' }: { className?: string }) {
   return (
     <Image
-      src="/seal-gold.webp"
-      alt={site.couple.monogram}
+      src="/seal-swans.webp"
+      alt=""
       width={1000}
       height={1000}
       priority
