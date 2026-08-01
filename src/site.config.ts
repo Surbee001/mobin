@@ -46,10 +46,11 @@ export const site = {
     /**
      * The pair on one line, for the designs that set them side by side rather
      * than stacked. Both settings, because the line swaps language like the
-     * stacked one does — and the `&` is in the Persian too, as the mark the
-     * two names meet at rather than as a word.
+     * stacked one does — and each takes its own conjunction: `&` in the
+     * English, و in the Persian. An ampersand set in Nastaliq is a Latin mark
+     * dropped into a Persian line, and it reads as one.
      */
-    pair: { en: 'MINA & MOBIN', fa: 'مینا & مبین' },
+    pair: { en: 'MINA & MOBIN', fa: 'مینا و مبین' },
     /**
      * The two initials, for the monogram design — one set in script at the
      * head of the card and one in the display face at its foot, both run off
@@ -153,37 +154,22 @@ export const site = {
   },
 
   /**
-   * A devotional couplet, set on its own panel after the verse.
+   * The blessing, in the family's own hand.
    *
-   * Transcribed from the card as written. Note the third line reads بأسم
-   * there, where باسم is the usual spelling — left as found rather than
-   * silently corrected.
+   * A photograph of handwriting rather than set type — which means the words
+   * live in the image and nothing here can read them. `alt` is the ONLY place
+   * they exist as text, so it is the only thing a screen reader, a search
+   * engine or a guest with images turned off will ever get. Replace the
+   * placeholder below with the actual wording.
    */
   poem: {
-    lines: [
-      'على حُبِّ عَلي وفاطمة نمضي',
-      'وعلى حُبِّ سَادتنا الأطهار نسير',
-      'بأسم النورين الحَسن والحُسين',
-    ],
-  },
-
-  /** The families speaking directly to their guests. */
-  invitation: {
+    alt: 'دست‌نوشتهٔ خانواده: بسم الله الرحمن الرحیم — تبریک به مناسبت این پیوند',
     /**
-     * The greeting. Set on its own line, above and apart from the body —
-     * it opens the letter rather than belonging to the sentence after it.
+     * Who signed it. Same problem as `alt` above — the name is ink in an
+     * image and nothing here can read it, so this is the only place it
+     * exists as text. Replace the placeholder with the actual name.
      */
-    opening: 'با سپاس از خداوند مهربان،',
-    /**
-     * Each string is its own paragraph.
-     * Written in the families' own voice.
-     */
-    paragraphs: [
-      'حضور شما عزیزان را در جشن نامزدی فرزندانمان گرامی می‌داریم.',
-      'شادی ما زمانی کامل می‌شود که شما در کنارمان باشید؛ قدم‌تان بر چشم ما.',
-    ],
-    /** The sign-off. */
-    signature: 'خانواده‌های آخوندی و یوسفی',
+    signatureAlt: 'امضای خانواده',
   },
 
   /**
@@ -197,19 +183,35 @@ export const site = {
     footer: 'FORMAL INVITATION TO FOLLOW',
   },
 
+  /** The families speaking directly to their guests. */
+  invitation: {
+    /**
+     * The calligraphy above the words — a photograph, so its couplet lives in
+     * the image. This alt is the only place it exists as text.
+     */
+    verseAlt: 'خوشنویسی: یک آن شد این عاشق شدن، دنیا همان یک لحظه بود',
+    /** The invitation itself. */
+    line: 'با افتخار از شما دعوت می‌کنیم، در هنگامهٔ جشن این وصال همراهمان باشید.',
+    /** The sign-off. */
+    signature: 'خانواده‌های آخوندی و یوسفی',
+  },
+
   /** Where it happens. */
   location: {
     eyebrow: 'نشانی',
-    name: 'دفتر ازدواج مهردریا',
+    name: 'سالن عقد مهر دریا',
     /**
      * As Google lists it for this place. Tidied of its duplicated
      * "تهران، استان تهران، تهران" prefix — check it against how the
      * families would actually write it. Leave empty to hide the line.
      */
-    address: 'تهران، منطقهٔ ۲، بلوار دریا، نبش خیابان برادران صرافها',
+    address: 'سعادت‌آباد، بلوار دریا، خیابان گل‌ها، نبش توحید ۳، پلاک ۱۲، طبقهٔ سوم',
     /**
-     * What the embedded map searches for. Google resolved the shared link
-     * from exactly this string, so it lands on the same place.
+     * What the embedded map searches for. NOT the display name above: Google
+     * resolved the shared link from this exact string, and it is the one that
+     * lands on the right pin. The families call the place سالن عقد مهر دریا;
+     * Google has it listed as this. Changing it to match the display name
+     * would be tidier and would move the map.
      */
     mapQuery: 'دفتر ازدواج مهردریا',
     /** The button destination — the original share link, so it is exact. */
@@ -234,6 +236,12 @@ export const site = {
    * moving the date moves every one of them. See components/eventPhase.ts.
    */
   countdown: {
+    /**
+     * The blessing under the clock, in the family's own hand. It is a
+     * photograph, so the words live in the image — this alt is the only
+     * place they exist as text. Replace it with the actual wording.
+     */
+    blessingAlt: 'دست‌نوشته: مبارک است',
     eyebrow: 'تا آن روز',
     /** From midnight on the day itself. */
     eyebrowToday: 'امشب',
@@ -281,6 +289,7 @@ export const site = {
 
   /** The prompt on the sealed envelope, before it is opened. */
   opening: {
+    /** Still used by the OG image, though the envelope no longer shows it. */
     prompt: 'برای گشودن، لمس کنید',
     promptEn: 'TOUCH TO OPEN',
   },

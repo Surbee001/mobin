@@ -1,9 +1,9 @@
 'use client'
 
 import { useRef } from 'react'
+import Image from 'next/image'
 import { site } from '@/site.config'
 import { useWordReveal } from './useWordReveal'
-import { kashida } from './kashida'
 
 /** Resolved from the stylesheet at run time, so there is one source. */
 const DIM = '--color-letter-dim'
@@ -16,9 +16,6 @@ const LIT = '--color-letter-ink'
  * Nothing climbs over this one, so it needs only its own viewport plus the
  * reveal; there is no third viewport to pay for.
  */
-/** Tatweels per join. 3 is a long, editorial stretch. */
-const KASHIDA = 3
-
 const PANEL_VH = 1.9
 const REVEAL_VH = 0.45
 
@@ -35,41 +32,47 @@ export function Invitation() {
       className="relative z-30 -mt-[100dvh] bg-panel-letter"
       style={{ height: `${PANEL_VH * 100}dvh` }}
     >
-      <div className="sticky top-0 flex h-[100dvh] items-center justify-center overflow-hidden px-6 sm:px-10">
+      {/* The panel colour is repeated on the sticky pane, not just on the
+          section. `position: sticky` forms a stacking context, so the multiply
+          on the calligraphy resolves against THIS box rather than the section
+          behind it — and with nothing painted here its white ground has
+          nothing to blend away into and sits there as a white rectangle. */}
+      <div className="sticky top-0 flex h-[100dvh] items-center justify-center overflow-hidden bg-panel-letter px-6 sm:px-10">
         <div dir="rtl" className="relative mx-auto w-full max-w-3xl text-center">
+          {/* The calligraphy, above the words.
+
+              Stored negated and multiplied: the plate is white ink on black
+              and this panel is light blush, so screened onto it the writing
+              would simply vanish. Inverted, `multiply` drops the ground —
+              white multiplied by the panel IS the panel — and the ink is
+              pre-tinted so it lands on the panel's own colour rather than on
+              black.
+
+              It carries no reveal. The words below resolve; a photograph
+              cannot, and fading it would show its ground on the way in. */}
+          <Image
+            src="/invitation-verse.webp"
+            alt={site.invitation.verseAlt}
+            width={1600}
+            height={825}
+            sizes="(max-width: 640px) 82vw, 58vw"
+            className="mx-auto mb-9 h-auto w-[66vw] max-w-md mix-blend-multiply sm:mb-12 sm:w-[44vw]"
+          />
+
           <p
             lang="fa"
-            className="mb-9 font-persian font-light leading-[2.15] sm:mb-11"
+            className="font-persian font-light leading-[2.15]"
             style={{ fontSize: 'clamp(1.4rem, 3.6vw, 2.5rem)' }}
           >
-            <span data-reveal-text aria-hidden="true">
-              {kashida(site.invitation.opening, KASHIDA)}
-            </span>
-            <span className="sr-only">{site.invitation.opening}</span>
+            {/* No kashida. Nastaliq already extends a word along its own falling
+              baseline; a programmatic tatweel lays a flat horizontal stroke
+              across that cascade and breaks it. The stretching this site used
+              on Persian was for a naskh face and does not belong on this one. */}
+            <span data-reveal-text>{site.invitation.line}</span>
           </p>
 
-          {site.invitation.paragraphs.map((p, i) => (
-            <p
-              key={p}
-              lang="fa"
-              className={`font-persian font-light leading-[2.15] ${i > 0 ? 'mt-8 sm:mt-10' : ''}`}
-              style={{ fontSize: 'clamp(1.4rem, 3.6vw, 2.5rem)' }}
-            >
-              {/* The stretched text is the one you see; the plain one is the
-                  one screen readers get. A wall of tatweels read aloud is
-                  nonsense, so only the visible copy carries them. */}
-              <span data-reveal-text aria-hidden="true">
-                {kashida(p, KASHIDA)}
-              </span>
-              <span className="sr-only">{p}</span>
-            </p>
-          ))}
-
           <span lang="fa" className="mt-12 block font-persian text-base font-light sm:mt-16">
-            <span data-reveal-text aria-hidden="true">
-              {kashida(site.invitation.signature, KASHIDA)}
-            </span>
-            <span className="sr-only">{site.invitation.signature}</span>
+            <span data-reveal-text>{site.invitation.signature}</span>
           </span>
         </div>
       </div>

@@ -6,6 +6,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useGSAP } from '@gsap/react'
 import { SpeakerSimpleHigh, SpeakerSimpleSlash } from '@phosphor-icons/react'
 import { useScroll } from './SmoothScroll'
+import { afterVoice } from './voiceGate'
 
 gsap.registerPlugin(ScrollTrigger, useGSAP)
 
@@ -74,17 +75,27 @@ export function Music() {
       onEnter: () => {
         if (started.current || muted) return
         started.current = true
-        audio.volume = 0
-        audio
-          .play()
-          .then(() => {
-            setAudible(true)
-            gsap.to(audio, { volume: VOLUME, duration: FADE_IN, ease: 'power1.inOut' })
-          })
-          .catch(() => {
-            // Blocked after all. Let the toggle offer it instead.
+
+        // Held until the recitation on the panel above has finished. Reaching
+        // the invitation is what schedules the music, not what starts it —
+        // see voiceGate.ts.
+        afterVoice(() => {
+          if (muted) {
             started.current = false
-          })
+            return
+          }
+          audio.volume = 0
+          audio
+            .play()
+            .then(() => {
+              setAudible(true)
+              gsap.to(audio, { volume: VOLUME, duration: FADE_IN, ease: 'power1.inOut' })
+            })
+            .catch(() => {
+              // Blocked after all. Let the toggle offer it instead.
+              started.current = false
+            })
+        })
       },
     })
 

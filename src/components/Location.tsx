@@ -6,7 +6,6 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useGSAP } from '@gsap/react'
 import { ArrowLeft, CalendarPlus } from '@phosphor-icons/react'
 import { site } from '@/site.config'
-import { kashida } from './kashida'
 import { Meadow } from './Meadow'
 import { phaseAt, type Phase } from './eventPhase'
 
@@ -80,24 +79,17 @@ export function Location() {
       <div className="relative mx-auto grid w-full max-w-5xl gap-12 sm:grid-cols-5 sm:items-center sm:gap-16">
         {/* The written address. */}
         <div className="sm:col-span-2">
-          {/* Stretched with kashidas. `aria-label` carries the unstretched
-              string so assistive tech reads the word, not the strokes. */}
-          <span
-            data-reveal
-            aria-label={location.eyebrow}
-            className="block font-persian text-base font-light text-accent"
-          >
-            {kashida(location.eyebrow, 2)}
+          <span data-reveal className="block font-persian text-xl font-light text-accent">
+            {location.eyebrow}
           </span>
 
           <h2
             data-reveal
             lang="fa"
-            aria-label={location.name}
-            className="mt-6 font-persian font-medium leading-[1.45] text-ink"
-            style={{ fontSize: 'clamp(2rem, 4.4vw, 3rem)' }}
+            className="mt-6 font-persian font-medium leading-[1.6] text-ink"
+            style={{ fontSize: 'clamp(2.3rem, 5vw, 3.4rem)' }}
           >
-            {kashida(location.name, 3)}
+            {location.name}
           </h2>
 
           {/* Only rendered once there is an address to render. */}
@@ -116,7 +108,7 @@ export function Location() {
             href={location.mapUrl}
             target="_blank"
             rel="noreferrer"
-            className="btn mt-9 font-persian text-[1.15rem] font-light"
+            className="btn mt-9 font-persian text-[1.45rem] font-light"
           >
             {location.linkLabel}
             <ArrowLeft size={19} weight="bold" aria-hidden="true" />

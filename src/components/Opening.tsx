@@ -125,7 +125,7 @@ export function Opening({ design = site.design.hero }: { design?: HeroDesign }) 
       if (reduced) {
         // Duration zero: playing it completes at once and hands straight off.
         timeline.set(
-          ['[data-flap]', '[data-front]', '[data-back]', '[data-seal]', '[data-prompt]'],
+          ['[data-flap]', '[data-front]', '[data-back]', '[data-seal]'],
           { opacity: 0 },
         )
       } else {
@@ -156,7 +156,6 @@ export function Opening({ design = site.design.hero }: { design?: HeroDesign }) 
         const FLAP_DUR = 0.9
 
         timeline
-          .to('[data-prompt]', { opacity: 0, y: 14, duration: 0.35, ease: 'power2.in' }, 0)
           // The seal takes the strain, then gives.
           .to('[data-seal]', { scale: 1.06, duration: 0.18, ease: 'power2.out' }, 0)
           .to(
@@ -220,7 +219,7 @@ export function Opening({ design = site.design.hero }: { design?: HeroDesign }) 
             at 90° and pops back at full size. Which looks exactly like the
             flap vanishing and reappearing, rather than opening. */}
         <div
-          className="relative aspect-[5/7] w-[min(88vw,380px)] [--flap:34%] min-[900px]:aspect-[7/5] min-[900px]:w-[min(74vw,680px)] min-[900px]:[--flap:46%]"
+          className="relative aspect-[5/7] w-[min(92vw,440px)] [--flap:34%] min-[900px]:aspect-[7/5] min-[900px]:w-[min(82vw,800px)] min-[900px]:[--flap:46%]"
           style={{ perspective: '1100px', perspectiveOrigin: '50% 25%' }}
         >
           {/* Inside back panel. */}
@@ -313,25 +312,6 @@ export function Opening({ design = site.design.hero }: { design?: HeroDesign }) 
           </button>
         </div>
 
-        {/* ── The prompt ───────────────────────────────────────── */}
-        <div data-prompt className="mt-10 flex flex-col items-center gap-2">
-          <button
-            type="button"
-            onClick={open}
-            // The hero's display face, at the hero's weight. It was set in
-            // the same family already, but at 500 against the card's 100 —
-            // and that gap is wide enough on a high-contrast face to read as
-            // a different typeface entirely. Held at 300 rather than 100
-            // because a hairline this small stops being legible.
-            className="tracked cursor-pointer font-display font-light text-ink-soft transition-opacity hover:opacity-60"
-            style={{ fontSize: 'clamp(10px, 1.7vw, 13px)' }}
-          >
-            {site.opening.promptEn}
-          </button>
-          <span className="font-persian text-[15px] font-light text-ink-soft/70">
-            {site.opening.prompt}
-          </span>
-        </div>
       </div>
     </div>
   )

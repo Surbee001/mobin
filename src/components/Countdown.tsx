@@ -1,11 +1,11 @@
 'use client'
 
 import { Fragment, useRef, useSyncExternalStore } from 'react'
+import Image from 'next/image'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useGSAP } from '@gsap/react'
 import { site } from '@/site.config'
-import { kashida } from './kashida'
 import { phaseAt, START, type Phase } from './eventPhase'
 
 gsap.registerPlugin(ScrollTrigger, useGSAP)
@@ -113,18 +113,17 @@ export function Countdown() {
     >
       <span
         data-reveal
-        aria-label={EYEBROW[phase]}
         className="relative font-persian font-light text-accent"
-        style={{ fontSize: 'clamp(1.2rem, 2.4vw, 1.7rem)' }}
+        style={{ fontSize: 'clamp(1.5rem, 3vw, 2.1rem)' }}
       >
-        {kashida(EYEBROW[phase], 2)}
+        {EYEBROW[phase]}
       </span>
 
       <div data-reveal className="rule relative mt-7 w-16" />
 
       {counting ? (
         <div
-          className="relative mt-16 flex items-start gap-8 sm:gap-16"
+          className="relative mt-14 flex items-start gap-4 sm:mt-16 sm:gap-16"
           // Reserve the row before the clock arrives so nothing jumps.
           style={{ minHeight: '9rem' }}
         >
@@ -133,18 +132,18 @@ export function Countdown() {
             // on top of the parent's and double the spacing between units.
             <Fragment key={key}>
               {i > 0 && (
-                <span aria-hidden="true" className="mt-5 font-serif text-2xl text-accent/45">
+                <span aria-hidden="true" className="mt-4 font-serif text-xl text-accent/45 sm:mt-5 sm:text-2xl">
                   ·
                 </span>
               )}
-              <div className="flex flex-col items-center gap-4">
+              <div className="flex flex-col items-center gap-3 sm:gap-4">
                 <span
                   className="font-persian font-light leading-none tabular-nums text-ink"
-                  style={{ fontSize: 'clamp(3rem, 9vw, 6rem)' }}
+                  style={{ fontSize: 'clamp(2.3rem, 11vw, 6rem)' }}
                 >
                   {parts ? fa(parts[key]) : ' '}
                 </span>
-                <span className="font-persian text-[17px] font-light text-ink-soft">{label}</span>
+                <span className="font-persian text-[17px] font-light text-ink-soft sm:text-[22px]">{label}</span>
               </div>
             </Fragment>
           ))}
@@ -160,6 +159,24 @@ export function Countdown() {
           {phase === 'during' ? site.countdown.nowLine : site.countdown.passedLine}
         </p>
       )}
+
+      {/* The blessing, under the clock.
+
+          The plate was white ink on black and is stored negated, because this
+          section sits on cream: screened onto a light ground white ink simply
+          disappears. Inverted and multiplied it behaves the way the meadow and
+          the peonies do — white multiplied by the page IS the page, so the
+          ground drops away and only the writing survives, tinted by the paper
+          it is printed on rather than arriving as its own colour. */}
+      <Image
+        data-reveal
+        src="/mobarak-v3.webp"
+        alt={site.countdown.blessingAlt}
+        width={1400}
+        height={539}
+        sizes="(max-width: 640px) 72vw, 40vw"
+        className="relative mt-6 h-auto w-[72vw] max-w-md mix-blend-multiply sm:mt-8 sm:w-[40vw]"
+      />
 
     </section>
   )

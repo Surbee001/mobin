@@ -3,8 +3,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { gsap } from 'gsap'
 import { useGSAP } from '@gsap/react'
-import { kashidaTotal } from './kashida'
-import { kashidaCounts } from './kashidaFit'
 
 gsap.registerPlugin(useGSAP)
 
@@ -44,12 +42,22 @@ const TRAVEL = 110
 export type NameLine = { en: string; fa: string }
 
 /**
- * How many tatweels each Persian line needs to come out the same width as the
- * widest English line — so the block holds its shape as the two settings swap.
- * See kashidaFit.ts.
+ * How much to scale each Persian line so it comes out the same width as its
+ * English counterpart — so the block holds its shape as the two settings swap.
+ *
+ * This used to be done with kashidas, counting tatweels until the widths met.
+ * That works for a naskh face, where a tatweel is a short connecting stroke;
+ * in Nastaliq it is a long flat sweep, and fitting a line that way threw the
+ * names clear off the card. A uniform scale is the honest equivalent: it
+ * changes the size of the writing and nothing about its shapes, which is
+ * exactly what a calligraphic face can survive.
+ *
+ * Measured once, after the faces have loaded. The card is sized in container
+ * units, so the ratio between the two settings does not change with the
+ * viewport and there is nothing to recompute on resize.
  */
-function useKashidaFit(root: React.RefObject<HTMLDivElement | null>, lines: NameLine[]) {
-  const [stretch, setStretch] = useState<number[]>(() => lines.map(() => 0))
+function useFaScale(root: React.RefObject<HTMLDivElement | null>, lines: NameLine[]) {
+  const [scale, setScale] = useState<number[]>(() => lines.map(() => 1))
 
   useEffect(() => {
     let alive = true
@@ -59,15 +67,20 @@ function useKashidaFit(root: React.RefObject<HTMLDivElement | null>, lines: Name
       const fa = root.current?.querySelectorAll<HTMLElement>('[data-name-fa]')
       if (!alive || !en || !fa || en.length !== lines.length) return
 
-      setStretch(
-        kashidaCounts(
-          lines.map((line, i) => ({ style: getComputedStyle(en[i]), text: line.en })),
-          lines.map((line, i) => ({ style: getComputedStyle(fa[i]), text: line.fa })),
-        ),
+      setScale(
+        lines.map((_, i) => {
+          const target = en[i].getBoundingClientRect().width
+          const natural = fa[i].getBoundingClientRect().width
+          if (!target || !natural) return 1
+          // Clamped. A measurement taken mid-swap, or against a face that has
+          // not finished loading, can come back wild — and an unclamped ratio
+          // would then set one line at a size the card cannot hold.
+          return Math.min(1.35, Math.max(0.65, target / natural))
+        }),
       )
     }
 
-    // Not before the faces are in: measured against the fallback, every count
+    // Not before the faces are in: measured against the fallback, every ratio
     // would be wrong, and wrong in a way that only shows on a slow connection.
     document.fonts.ready.then(fit)
     return () => {
@@ -75,7 +88,7 @@ function useKashidaFit(root: React.RefObject<HTMLDivElement | null>, lines: Name
     }
   }, [root, lines])
 
-  return stretch
+  return scale
 }
 
 export function NameLines({
@@ -87,7 +100,7 @@ export function NameLines({
   lineClassName?: string
 }) {
   const root = useRef<HTMLDivElement>(null)
-  const stretch = useKashidaFit(root, lines)
+  const scale = useFaScale(root, lines)
 
   useGSAP(
     () => {
@@ -148,8 +161,13 @@ export function NameLines({
             </span>
             {/* The Persian says the same thing; a screen reader should hear
                 the pair once. */}
-            <span className="name-setting name-fa" data-name-fa aria-hidden="true">
-              {kashidaTotal(line.fa, stretch[i])}
+            <span
+              className="name-setting name-fa"
+              data-name-fa
+              aria-hidden="true"
+              style={{ fontSize: `${scale[i] ?? 1}em` }}
+            >
+              {line.fa}
             </span>
           </span>
         </h1>

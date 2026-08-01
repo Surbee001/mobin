@@ -35,11 +35,23 @@ const amiri = Amiri({
 })
 
 /**
- * Persian body copy. Markazi Text is a Persian-first text face — it has the
- * calligraphic weighting the script is drawn with, where a geometric sans
- * flattens it. It runs small for its point size, so Persian is set a step
- * larger than the Latin around it.
+ * Persian, in Iran Nastaliq.
+ *
+ * Nastaliq is a calligraphic hand rather than a text face: the baseline falls
+ * away to the left as a word is written, so a line occupies far more vertical
+ * room than a naskh or a sans does at the same point size. Every Persian
+ * `line-height` on the site is set generously for that reason — tighten one
+ * and the descending tail of one line will run into the head of the next.
+ *
+ * Loaded locally as woff2 (424KB from a 2.3MB TTF).
  */
+const nastaliq = localFont({
+  src: [{ path: '../fonts/IranNastaliq.woff2', weight: '400', style: 'normal' }],
+  variable: '--font-nastaliq',
+  display: 'swap',
+})
+
+/** Kept for the OG image, which cannot shape Nastaliq. */
 const markazi = Markazi_Text({
   weight: ['400', '500', '600'],
   subsets: ['arabic'],
@@ -80,8 +92,22 @@ const pinyon = Pinyon_Script({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ??
+      (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000'),
+  ),
   title: site.meta.title,
   description: site.meta.description,
+  openGraph: {
+    title: site.meta.title,
+    description: site.meta.description,
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: site.meta.title,
+    description: site.meta.description,
+  },
   // Stops Chrome offering to translate the page. The invitation is meant to
   // be read in the language it was written in — a machine translation of the
   // aya or of the families' own wording would be worse than none.
@@ -103,7 +129,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="fa" dir="rtl" translate="no" className="notranslate h-full">
       <body
-        className={`${tobias.variable} ${amiri.variable} ${markazi.variable} ${vazir.variable} ${pinyon.variable} min-h-full antialiased`}
+        className={`${tobias.variable} ${amiri.variable} ${nastaliq.variable} ${markazi.variable} ${vazir.variable} ${pinyon.variable} min-h-full antialiased`}
       >
         {/* Renders nothing. It hangs the lamp the whole page is lit by —
             see components/light.ts. */}

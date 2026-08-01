@@ -45,8 +45,8 @@
   /* Each carries a `-dim` that is almost the panel colour itself —
      the text is there from the start, just not yet legible — and an
      `-ink` it resolves to. */
-  --color-panel-verse: #c2c76a; /* the aya                            */
-  --color-verse-dim: #cdd17f;
+  --color-panel-verse: #d5cf9a; /* the aya                            */
+  --color-verse-dim: #ddd8ab;
   --color-verse-ink: #3c4432;
 
   /* The flat pink under the garden relief — see SiteTexture. */
@@ -57,8 +57,7 @@
   --color-mono-ground: #f2dcd4;
   --color-mono-ink: #7a5836;
 
-  --color-panel-poem: #4e5942; /* the couplet — the one dark band    */
-  --color-poem-dim: #5a6550;
+  --color-panel-poem: #6f7159; /* the blessing — the one dark band   */
   --color-poem-ink: #efece0;
 
   --color-panel-letter: #ebd1c8; /* the invitation                     */
@@ -81,7 +80,7 @@
   --font-display: var(--font-tobias);
   --font-serif: var(--font-tobias);
   --font-arabic: var(--font-amiri);
-  --font-persian: var(--font-markazi);
+  --font-persian: var(--font-nastaliq);
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -233,13 +232,30 @@ body[data-locked='true'] {
 .btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.7rem;
   border-radius: 5px;
-  padding: 0.95rem 1.8rem;
   background-color: var(--color-olive);
   color: var(--color-cream);
-  line-height: 1;
   transition: background-color 0.4s ease;
+
+  /* ── Why the padding is lopsided ──────────────────────────────
+     Iran Nastaliq declares an em box 2.7 times its own point size —
+     1.47 above the baseline and 1.25 below — because the hand needs that
+     room to fall away to the left. The ink of a button label uses barely a
+     third of it: measured, 28.7px of glyph inside a 63px line box. Left
+     alone the button is twice as deep as the writing in it, and the writing
+     sits low, because the space the font reserves is not evenly split.
+
+     So the line box is collapsed to 1 and the room put back as padding, in
+     `em` so it scales with whatever size the button is set at. The numbers
+     are the metrics rearranged, not taste: at line-height 1 the baseline
+     lands 0.61em down, the ink runs from 0.39em ABOVE the box to 0.85em
+     below it, and these two paddings are what leave an equal 0.43em of
+     olive above and below that. Change the face and they have to be
+     measured again. */
+  line-height: 1;
+  padding: 0.82em 1.8rem 0.28em;
 }
 
 .btn:hover {
@@ -250,7 +266,16 @@ body[data-locked='true'] {
    the label so they read as support rather than as a second word. */
 /* Icons take the label's colour. They sit a touch back from it, but only
    a touch — knocking them down further undoes the weight they are carrying. */
+/* Lifted to the middle of the INK rather than the middle of the line box,
+   which is where `align-items: center` would otherwise put it — about 6px
+   low on a button this size, which reads as the icon having slipped.
+
+   A transform and not a margin: a margin on a centred flex item is centred
+   along with it, so half of it comes back off the other side and the other
+   half makes the line taller — the button grew by 5px and the icon did not
+   move. A transform is painted, not laid out, so nothing around it shifts. */
 .btn svg {
+  transform: translateY(-0.28em);
   color: currentColor;
   opacity: 0.88;
   flex: none;
@@ -711,6 +736,10 @@ body[data-locked='true'] {
   inset: 0;
   pointer-events: none;
   background-image: url('/garden-arch.webp');
+  /* Both axes given, so the sheet is stretched to the pocket. That is what
+     the trace asked for, and on the landscape envelope the two shapes are
+     close enough that the squash is a few percent. See the portrait override
+     at the foot of this rule — there they are not close at all. */
   background-size: 100% 119.49%;
   background-position: 50% 100%;
   background-repeat: no-repeat;
@@ -728,6 +757,18 @@ body[data-locked='true'] {
     98.1% 0%, 99.17% 1.57%, 100% 6.27%, 100% 99.51%, 0% 100%,
     0% 32.11%, 1.19% 22.06%, 1.59% 25.88%
   );
+}
+
+/* The envelope turns portrait below 900px, and the sheet does not — it is a
+   4:3 photograph. Forcing both axes onto a 5:7 pocket squashes it to under
+   half its natural width, which is the flowers looking stretched on a phone.
+   Setting the height alone lets the width follow it, so the pattern keeps its
+   own proportions and the pocket simply crops what will not fit. The framing
+   is unchanged: same 119.49%, still anchored to the bottom edge. */
+@media (max-width: 899px) {
+  .pocket-pattern {
+    background-size: auto 119.49%;
+  }
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -953,7 +994,7 @@ body[data-locked='true'] {
    it would be to scale the two lines differently, which would make one of
    them a different size to the other.
 
-   Use `--font-vazir`, NOT a theme name like `--font-persian`. The theme block
+   Use `--font-nastaliq`, NOT a theme name like `--font-persian`. The theme block
    is `@theme inline`, which substitutes its values into the utilities Tailwind
    generates and never emits them as custom properties — so `var(--font-persian)`
    is undefined here, the whole declaration is thrown out as invalid, and the
@@ -961,9 +1002,12 @@ body[data-locked='true'] {
    substitutes for the missing Arabic glyphs. The next/font variables are set
    on the body and genuinely exist. */
 .name-fa {
-  font-family: var(--font-vazir), sans-serif;
-  font-size: 1.12em;
-  font-weight: 100;
+  font-family: var(--font-nastaliq), serif;
+  /* Nastaliq sets small for its point size and drops a long tail below the
+     baseline, so the Persian needs both a step up and room underneath — the
+     window these slide inside is only as tall as one line. */
+  font-size: 1.3em;
+  font-weight: 400;
   letter-spacing: 0;
 }
 
