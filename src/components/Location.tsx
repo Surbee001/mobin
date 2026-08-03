@@ -22,7 +22,7 @@ const { location, event } = site
 const embedSrc = `https://www.google.com/maps?q=${encodeURIComponent(location.mapQuery)}&z=16&hl=fa&output=embed`
 
 /**
- * Which phase of the evening the page is in. Read once, on the client, after
+ * Which phase of the day the page is in. Read once, on the client, after
  * mount — the server has no business guessing, and a mismatch here would be a
  * hydration error rather than a cosmetic one. Until it resolves the section
  * renders as `before`, which is the truthful default and the one that shows
@@ -180,9 +180,9 @@ export function Location() {
       </div>
 
       {/* The calendar button closes the page. Only while it is still ahead:
-          an entry for an evening already under way is no use to anybody, and
+          an entry for a party already under way is no use to anybody, and
           afterwards it is no use at all. The map link above stays either way,
-          which is why this does not fall back to one — the night itself would
+          which is why this does not fall back to one — the day itself would
           otherwise show the same button twice. */}
       {(phase === 'before' || phase === 'today') && (
         <a

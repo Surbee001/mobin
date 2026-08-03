@@ -80,8 +80,11 @@ export const site = {
      * 2026-08-30 is 17 Rabiʻ al-Awwal 1448 by the Umm al-Qura calendar.
      * Civil-tabular reckoning puts that a day later, on the 31st — worth
      * confirming against whichever the families are going by.
+     *
+     * The hour has to agree with `timeFa` below, which is the only place a
+     * guest actually reads it. It is a MORNING: 11:15, not 23:15.
      */
-    iso: '2026-08-30T23:00:00+03:30',
+    iso: '2026-08-30T11:15:00+03:30',
     /** The one line beneath the names on the card. */
     cardDate: "17 Rabi'",
     /** The line under the hero, on the scroll cue. */
@@ -236,7 +239,7 @@ export const site = {
    * days column because there are none left. From the hour of the party the
    * clock goes altogether and `nowLine` stands in its place, with the button
    * beneath it turning into directions rather than a calendar entry — on the
-   * night, the only thing a guest wants from this page is the way there.
+   * day itself, the only thing a guest wants from this page is the way there.
    * Afterwards, `passedLine`.
    *
    * The boundaries all come off `event.iso`, in the event's own timezone, so
@@ -250,8 +253,14 @@ export const site = {
      */
     blessingAlt: 'دست‌نوشته: مبارک است',
     eyebrow: 'تا آن روز',
-    /** From midnight on the day itself. */
-    eyebrowToday: 'امشب',
+    /**
+     * From midnight on the day itself.
+     *
+     * «امروز», not «امشب». The window this stands in opens at midnight and
+     * closes at 11:15 in the morning, so every minute of it is before noon —
+     * a line that says "tonight" would be wrong for the whole of it.
+     */
+    eyebrowToday: 'امروز',
     /** From the hour it begins. */
     eyebrowNow: 'همین حالا',
     /** And once it is over. */
@@ -273,7 +282,12 @@ export const site = {
     label: 'افزودن به تقویم',
     /** Title of the event as it appears in the guest's calendar. */
     eventTitle: 'جشن نامزدی مینا و مبین',
-    /** How long the event runs, in minutes. 240 from 11pm ends it at 3am. */
+    /**
+     * How long the event runs, in minutes. 240 from 11:15 in the morning ends
+     * it at 3:15 in the afternoon — kept at the length it had when the hour
+     * was an evening one, so it is worth confirming against a morning aghd
+     * rather than assuming it carried over.
+     */
     durationMinutes: 240,
     /**
      * The revision number of the invitation, as calendars understand it.
@@ -287,11 +301,14 @@ export const site = {
      *
      * So: bump it by one whenever the date, the time, the length or the venue
      * changes. It costs nothing to bump needlessly and it costs a guest the
-     * evening not to bump when it mattered.
+     * day not to bump when it mattered.
      *
      * 0 → 1: moved from 18 September, 8pm to 30 August, 11pm.
+     * 1 → 2: the same day, but 11:15 in the MORNING — it was never an
+     *   evening. Anyone who added the entry before this keeps 11pm without
+     *   it, which is twelve hours late for a wedding.
      */
-    sequence: 1,
+    sequence: 2,
   },
 
   /** The prompt on the sealed envelope, before it is opened. */

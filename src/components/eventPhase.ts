@@ -1,7 +1,7 @@
 import { site } from '@/site.config'
 
 /**
- * Where the evening is, relative to now.
+ * Where the day is, relative to now.
  *
  *   before — the ordinary state, and everything the site was built for
  *   today  — from midnight in Tehran on the day itself
@@ -23,7 +23,7 @@ export const END = START + site.calendar.durationMinutes * 60_000
 /**
  * Midnight at the top of the event's own day.
  *
- * The event's own day, not the guest's: «امشب» has to mean tonight in Tehran
+ * The event's own day, not the guest's: «امروز» has to mean today in Tehran
  * whichever city the phone reading it happens to be in, and a guest three
  * timezones west would otherwise see it a day early or a day late.
  *

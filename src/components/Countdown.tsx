@@ -62,7 +62,7 @@ const EYEBROW: Record<Phase, string> = {
  * So the page's ending furniture (the meadow, the confetti, the calendar
  * button) lives on <Location> now, and this is the clock alone.
  *
- * It moves through four settings as the evening approaches and passes — see
+ * It moves through four settings as the day approaches and passes — see
  * eventPhase.ts for where the boundaries come from, and the note above
  * `countdown` in site.config.ts for what each one says.
  */
@@ -151,7 +151,7 @@ export function Countdown() {
       ) : (
         // Once there is nothing left to count, the line that stood in for the
         // clock takes the same vertical room the clock had, so the section
-        // keeps its proportions on the night and after it.
+        // keeps its proportions on the day itself and after it.
         <p
           className="relative mt-16 flex items-center text-balance text-center font-persian font-light leading-[1.9] text-ink"
           style={{ minHeight: '9rem', fontSize: 'clamp(1.6rem, 4vw, 2.6rem)' }}
