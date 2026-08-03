@@ -106,6 +106,31 @@
 html {
   /* Lenis drives the scrolling; never let the browser also smooth it. */
   scroll-behavior: auto;
+
+  /* ── The invitation is printed on cream. Always. ──────────────
+     `only light`, and not merely `light`.
+
+     Chrome on Android will re-colour a page that has no dark theme of its own
+     when the phone is in dark mode — Auto Dark Theme. It is not a filter over
+     the finished page: it inverts backgrounds and text per element, and it
+     leaves images alone. On this site that is ruinous rather than merely
+     unwanted. The envelope's blush pocket comes back dark while the flowers
+     printed into it do not, and `mix-blend-mode: multiply` — which is the only
+     reason that pattern sits IN the paper instead of on top of it — resolves
+     against a backdrop it was never drawn for. Multiply against a dark ground
+     returns the ground, so the trace goes patchy and the edge of the sheet
+     reads as a hard cut where the clip-path ends.
+
+     `light` alone does not stop it: that says which of the two schemes the
+     page is written in, and Auto Dark Theme's whole premise is re-colouring
+     pages written in light. `only light` is the documented opt-out, and there
+     is a matching <meta> in layout.tsx — the meta is what the engine reads
+     before the stylesheet has arrived, so both are wanted.
+
+     Nothing is lost by refusing: there is no dark setting of this design to
+     fall back to, and the layout's `themeColor` already commits the browser
+     chrome to the same cream on the same grounds. */
+  color-scheme: only light;
 }
 
 body {
@@ -762,12 +787,33 @@ body[data-locked='true'] {
 /* The envelope turns portrait below 900px, and the sheet does not — it is a
    4:3 photograph. Forcing both axes onto a 5:7 pocket squashes it to under
    half its natural width, which is the flowers looking stretched on a phone.
-   Setting the height alone lets the width follow it, so the pattern keeps its
-   own proportions and the pocket simply crops what will not fit. The framing
-   is unchanged: same 119.49%, still anchored to the bottom edge. */
+
+   The fix is NOT to free the background's width (`background-size: auto`).
+   The clip-path above is a trace, and a trace is in the element's coordinates:
+   it only lines up with the flowers while the sheet is stretched across the
+   element exactly, `100%` wide. Let the width run free and the sheet is drawn
+   2.2× wider than the pocket and centred, so the pocket frames the hollow
+   middle of the arch while the polygon goes on cutting where the flowers used
+   to be — the left mass half gone, a hard vertical edge through the right.
+
+   So the ELEMENT takes the shape the trace was made at instead, and the
+   background is left stretched across it. That shape is the landscape pocket,
+   7:5 — the same aspect this file gives the envelope above 900px — which is
+   the whole reason the geometry comes out right: same box, same stretch, same
+   trace. It cannot be as tall as a portrait pocket at that ratio, so it sits
+   on the bottom edge and the arch rises out of it.
+
+   Overhanging 15% each side, and deliberately: it enlarges the flowers to
+   something near their desktop size, and it carries the one place the trace
+   meets the top edge of its box — a sliver at the top right, which reads as a
+   straight cut anywhere but under the envelope's own edge — off the side of
+   the pocket, where the front's overflow takes it. */
 @media (max-width: 899px) {
   .pocket-pattern {
-    background-size: auto 119.49%;
+    top: auto;
+    left: -15%;
+    right: -15%;
+    aspect-ratio: 7 / 5;
   }
 }
 

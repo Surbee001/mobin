@@ -86,8 +86,15 @@ export const site = {
     cardDate: "17 Rabi'",
     /** The line under the hero, on the scroll cue. */
     dateLine: "17 Rabi'",
-    /** Persian date line, shown in the invitation section. */
-    dateFa: 'یکشنبه ۸ شهریور ۱۴۰۵ — ساعت ۱۱ شب',
+    /**
+     * The date in Persian, set over the address in three lines: the Solar
+     * Hijri date, the lunar date it falls on, and the hour. Three fields
+     * rather than one string because they are set at three different sizes —
+     * the day is the line that carries, and the other two attend it.
+     */
+    dateFa: 'یکشنبه ۸ شهریور ۱۴۰۵',
+    dateHijriFa: 'مصادف با ۱۷ ربیع الاول',
+    timeFa: 'ساعت ۱۱:۱۵ صبح',
   },
 
   /**
@@ -292,6 +299,12 @@ export const site = {
     /** Still used by the OG image, though the envelope no longer shows it. */
     prompt: 'برای گشودن، لمس کنید',
     promptEn: 'TOUCH TO OPEN',
+    /**
+     * The cue at the foot of the hero, once the card has landed — the card
+     * fills the screen and gives no sign that there is a page under it. It
+     * goes the moment the guest scrolls, and does not come back.
+     */
+    scrollHint: 'به پایین بکشید',
   },
 } as const
 

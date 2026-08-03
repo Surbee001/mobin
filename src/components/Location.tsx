@@ -11,7 +11,7 @@ import { phaseAt, type Phase } from './eventPhase'
 
 gsap.registerPlugin(ScrollTrigger, useGSAP)
 
-const { location } = site
+const { location, event } = site
 
 /**
  * Google's embed works without an API key at this endpoint. Searching by the
@@ -75,6 +75,52 @@ export function Location() {
       className="relative z-40 flex flex-col items-center overflow-hidden bg-paper px-6 pt-36 pb-[46vw] sm:px-10 sm:pt-52 sm:pb-[34vw]"
     >
       <Meadow phase={phase} />
+
+      {/* When, above where. The day carries the block; the lunar date and the
+          hour attend it, set smaller and either side of a hairline so the
+          three lines read as one statement rather than three.
+
+          All three sizes are fluid, and they have to be: fix the two smaller
+          ones in rem while the first is clamped against the viewport and the
+          gap between them grows with every pixel of window — the day arrives
+          at its full size on a desktop with two captions under it. They are
+          set as fractions of one scale instead, ~0.66 and ~0.72 of the day,
+          which is the same hierarchy at every width.
+
+          Generous fractions, because this face is small for its point size —
+          the note on `.name-fa` in globals.css says the same thing. Anything
+          set at the address line's 1.2rem reads as fine print, and none of
+          these three lines is fine print. */}
+      <div className="relative mb-20 w-full max-w-5xl text-center sm:mb-28">
+        <p
+          data-reveal
+          lang="fa"
+          className="font-persian font-medium leading-[1.55] text-ink"
+          style={{ fontSize: 'clamp(2.2rem, 4.8vw, 3.2rem)' }}
+        >
+          {event.dateFa}
+        </p>
+
+        <p
+          data-reveal
+          lang="fa"
+          className="mt-2 font-persian font-light leading-[1.7] text-ink-soft"
+          style={{ fontSize: 'clamp(1.5rem, 3.1vw, 2.1rem)' }}
+        >
+          {event.dateHijriFa}
+        </p>
+
+        <span data-reveal aria-hidden="true" className="mx-auto mt-8 block h-px w-16 bg-accent/45" />
+
+        <p
+          data-reveal
+          lang="fa"
+          className="mt-6 font-persian font-light leading-[1.7] text-accent"
+          style={{ fontSize: 'clamp(1.65rem, 3.4vw, 2.3rem)' }}
+        >
+          {event.timeFa}
+        </p>
+      </div>
 
       <div className="relative mx-auto grid w-full max-w-5xl gap-12 sm:grid-cols-5 sm:items-center sm:gap-16">
         {/* The written address. */}

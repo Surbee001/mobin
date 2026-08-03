@@ -3,18 +3,17 @@
 /**
  * Keeps the two audio tracks off each other.
  *
- * The recitation plays once, on the blessing panel. The background music
- * loops, and starts a panel later on the invitation. Scrolled at a normal
- * pace those never meet — scrolled quickly they do, and then the music comes
- * up underneath a voice that is still speaking.
+ * Both begin when the envelope opens: the recitation plays once, and the
+ * music loops behind it for the rest of the visit. They are ten seconds and
+ * an unbounded track sharing one pair of speakers, so something has to hold
+ * the second until the first has said its piece.
  *
  * The gate is CLOSED until the recitation has actually finished. That
- * direction matters: an open-by-default gate only works if the blessing's
- * scroll trigger is guaranteed to fire before the invitation's, and it is
- * not. Both can be evaluated in the same scroll update, a re-render can
- * rebuild either of them after the reader is already past both, and a jump
- * can skip a trigger's start position entirely. Closed by default, none of
- * that can produce a moment where the music is allowed through early.
+ * direction matters: an open-by-default gate only works if the voice is
+ * guaranteed to have claimed it before the music asks, and it is not. Both
+ * are armed by the same unlock, in whatever order React runs their effects,
+ * and each has a `play()` promise of its own to settle. Closed by default,
+ * none of that can produce a moment where the music is allowed through early.
  *
  * The deadlock that a closed gate invites — the music waiting on a voice that
  * never plays — is handled by making the music START the voice rather than
@@ -60,9 +59,9 @@ export function voiceFinished() {
  * Run `fn` once the recitation is done — immediately if it already is.
  *
  * If it has not begun, this begins it. That is what stops a closed gate from
- * becoming a stuck one: arriving at the music's trigger without having passed
- * the voice's is exactly the fast-scroll case, and the answer is to play the
- * recitation now and queue the music behind it, not to let the music win.
+ * becoming a stuck one: the music can be armed and asking before the voice's
+ * own effect has run at all, and the answer is to play the recitation now and
+ * queue the music behind it, not to let the music win.
  */
 export function afterVoice(fn: () => void) {
   if (state === 'done') {

@@ -7,9 +7,8 @@ import { Invitation } from '@/components/Invitation'
 import { Location } from '@/components/Location'
 import { Countdown } from '@/components/Countdown'
 import { Confetti } from '@/components/Confetti'
+import { ScrollCue } from '@/components/ScrollCue'
 import { Music } from '@/components/Music'
-import { EnvelopeEditor } from '@/components/EnvelopeEditor'
-import { ThemeEditor } from '@/components/ThemeEditor'
 import { site, type HeroDesign } from '@/site.config'
 
 /**
@@ -35,15 +34,14 @@ export function Invite({ design = site.design.hero }: { design?: HeroDesign }) {
         <Location />
       </main>
 
+      {/* Says there is a page under the card, until the guest agrees. */}
+      <ScrollCue />
+
       {/* Fires once, when the closing section comes into view. */}
       <Confetti trigger="#finale" />
 
-      {/* Starts at the Persian invitation, then loops. */}
+      {/* Starts under the recitation, then loops. */}
       <Music />
-
-      {/* Development only — both return null in a production build. */}
-      <EnvelopeEditor />
-      <ThemeEditor />
     </SmoothScroll>
   )
 }

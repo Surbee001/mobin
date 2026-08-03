@@ -121,6 +121,12 @@ export const viewport: Viewport = {
   // all. The tab ICON does answer the theme — see app/icon.svg — because that
   // one sits in the browser's furniture rather than against the page.
   themeColor: '#f2efdc',
+  // Refuses Chrome-for-Android's Auto Dark Theme, which repaints a page that
+  // declares no dark scheme of its own and takes the envelope apart doing it.
+  // `only light` is the opt-out; plain `light` is not. The stylesheet says the
+  // same thing on `html`, at length — see the note there. This meta is the
+  // copy that is read before the stylesheet has loaded.
+  colorScheme: 'only light',
   width: 'device-width',
   initialScale: 1,
 }

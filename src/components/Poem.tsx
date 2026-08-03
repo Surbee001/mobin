@@ -1,15 +1,10 @@
 'use client'
 
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import Image from 'next/image'
-import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { useGSAP } from '@gsap/react'
 import { site } from '@/site.config'
 import { useScroll } from './SmoothScroll'
 import { registerVoice, voiceStarted, voiceFinished } from './voiceGate'
-
-gsap.registerPlugin(ScrollTrigger, useGSAP)
 
 /**
  * The blessing, on the one dark panel.
@@ -43,49 +38,33 @@ const PANEL_VH = 2.9
 
 export function Poem() {
   const voice = useRef<HTMLAudioElement>(null)
-  const primed = useRef(false)
   const played = useRef(false)
   const { locked } = useScroll()
 
-  // Primed on the envelope tap, like the background music — a browser will
-  // not let the page make a sound until the guest has interacted with it, and
-  // by the time this panel is reached there has been no click for a while.
-  // Playing it muted for an instant on the one gesture there is satisfies the
-  // policy, so the scroll trigger below is allowed to start it later.
-  useGSAP(
-    () => {
-      const audio = voice.current
-      if (!audio || locked || primed.current) return
-      primed.current = true
-      audio.muted = true
-      audio
-        .play()
-        .then(() => {
-          audio.pause()
-          audio.currentTime = 0
-          audio.muted = false
-        })
-        .catch(() => {
-          audio.muted = false
-        })
-    },
-    { dependencies: [locked] },
-  )
-
-  useGSAP(() => {
+  /**
+   * The recitation starts when the envelope opens, not when this panel is
+   * reached — it is the first thing a guest hears, under the card, and the
+   * music comes up behind it once it has finished.
+   *
+   * Which also disposes of the autoplay problem rather than working around
+   * it: opening the envelope IS the gesture, so this plays on the strength of
+   * it instead of having to be primed muted and started cold a panel later.
+   * The audio still lives on this section because the words are its words.
+   */
+  useEffect(() => {
     /**
      * Begin the recitation. Idempotent, and shared by the two things that can
-     * ask for it: this panel's own scroll trigger, and the music's gate when a
-     * fast scroll reaches the invitation first.
+     * ask for it: the envelope opening below, and the music's gate, which
+     * starts the voice itself rather than wait forever on one that never ran.
      */
     const begin = () => {
       const audio = voice.current
       if (!audio || played.current) return
       played.current = true
 
-      // Claimed BEFORE the play promise settles. The music's trigger can fire
-      // in the same scroll update, and a gate that only closed on success
-      // would leave a window where both are allowed to start.
+      // Claimed BEFORE the play promise settles. The music arms itself on the
+      // same unlock, and a gate that only closed on success would leave a
+      // window where both are allowed to start.
       voiceStarted()
 
       audio.play().catch(() => {
@@ -97,16 +76,8 @@ export function Poem() {
     }
 
     registerVoice(begin)
-
-    const st = ScrollTrigger.create({
-      trigger: '#blessing',
-      start: 'top 60%',
-      once: true,
-      onEnter: begin,
-    })
-
-    return () => st.kill()
-  })
+    if (!locked) begin()
+  }, [locked])
 
   return (
     <section
@@ -115,10 +86,10 @@ export function Poem() {
       className="relative z-20 -mt-[100dvh] bg-panel-poem"
       style={{ height: `${PANEL_VH * 100}dvh` }}
     >
-      {/* Read once, when the panel arrives — no `loop`. It sits before the
-          background music starts at the invitation, so the two never overlap
-          on the way down. Not preloaded: nothing is spent on it until the
-          envelope has actually been opened. */}
+      {/* Read once, when the envelope opens — no `loop`. The background music
+          waits on its `ended`, so the two never overlap however fast the page
+          is scrolled. Not preloaded: nothing is spent on it until the envelope
+          has actually been opened, at which point playing it fetches it. */}
       <audio ref={voice} src="/blessing-voice.mp3" preload="none" onEnded={voiceFinished} />
 
       {/* The panel colour is repeated on the sticky pane, not just on the
