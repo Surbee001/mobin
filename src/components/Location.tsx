@@ -7,6 +7,7 @@ import { useGSAP } from '@gsap/react'
 import { ArrowLeft, CalendarPlus } from '@phosphor-icons/react'
 import { site } from '@/site.config'
 import { Meadow } from './Meadow'
+import { Sprigs } from './Sprigs'
 import { phaseAt, type Phase } from './eventPhase'
 
 gsap.registerPlugin(ScrollTrigger, useGSAP)
@@ -92,10 +93,17 @@ export function Location() {
           set at the address line's 1.2rem reads as fine print, and none of
           these three lines is fine print. */}
       <div className="relative mb-20 w-full max-w-5xl text-center sm:mb-28">
+        {/* The peonies stand either side of the date. First in the block and
+            explicitly behind it — an absolutely positioned box paints over
+            static siblings whatever the order, so every line below carries
+            `relative` to climb back above the flowers rather than be read
+            through them. */}
+        <Sprigs phase={phase} />
+
         <p
           data-reveal
           lang="fa"
-          className="font-persian font-medium leading-[1.55] text-ink"
+          className="relative z-10 font-persian font-medium leading-[1.55] text-ink"
           style={{ fontSize: 'clamp(2.2rem, 4.8vw, 3.2rem)' }}
         >
           {event.dateFa}
@@ -104,18 +112,22 @@ export function Location() {
         <p
           data-reveal
           lang="fa"
-          className="mt-2 font-persian font-light leading-[1.7] text-ink-soft"
+          className="relative z-10 mt-2 font-persian font-light leading-[1.7] text-ink-soft"
           style={{ fontSize: 'clamp(1.5rem, 3.1vw, 2.1rem)' }}
         >
           {event.dateHijriFa}
         </p>
 
-        <span data-reveal aria-hidden="true" className="mx-auto mt-8 block h-px w-16 bg-accent/45" />
+        <span
+          data-reveal
+          aria-hidden="true"
+          className="relative z-10 mx-auto mt-8 block h-px w-16 bg-accent/45"
+        />
 
         <p
           data-reveal
           lang="fa"
-          className="mt-6 font-persian font-light leading-[1.7] text-accent"
+          className="relative z-10 mt-6 font-persian font-light leading-[1.7] text-accent"
           style={{ fontSize: 'clamp(1.65rem, 3.4vw, 2.3rem)' }}
         >
           {event.timeFa}

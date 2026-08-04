@@ -36,10 +36,13 @@ import type { Phase } from './eventPhase'
  * onward. The transition is slow enough that nobody watches it happen; the
  * page is simply warmer than it was last week.
  */
-const MEADOW = {
+export const MEADOW = {
   dim: 'sepia(0.62) saturate(1.35) hue-rotate(3deg) brightness(0.99)',
   bloom: 'sepia(0.78) saturate(2.5) hue-rotate(-13deg) brightness(1.02)',
 }
+
+/** How long the two settings take to trade places. */
+export const MEADOW_FADE = 'filter 2.6s ease'
 
 export function Meadow({ phase }: { phase: Phase }) {
   return (
@@ -60,7 +63,7 @@ export function Meadow({ phase }: { phase: Phase }) {
         className="w-full mix-blend-multiply"
         style={{
           filter: phase === 'before' ? MEADOW.dim : MEADOW.bloom,
-          transition: 'filter 2.6s ease',
+          transition: MEADOW_FADE,
         }}
       />
     </div>
