@@ -22,9 +22,18 @@ export const site = {
     hero: 'monogram' as HeroDesign,
   },
 
-  /** Shown in the browser tab / when the link is shared. */
+  /**
+   * Shown in the browser tab / when the link is shared.
+   *
+   * The title names the OCCASION and not only the couple: a tab or a shared
+   * link that reads «مینا و مبین» alone says a pair of names and nothing about
+   * what is being announced. نامزدی — the engagement. NOT عروسی, and not عقد:
+   * those are the wedding, and this is the party before it. The venue happens
+   * to be a دفتر ازدواج (see `location`), which is the registry's own name for
+   * itself and not a description of the day.
+   */
   meta: {
-    title: 'مینا و مبین',
+    title: 'نامزدی مینا و مبین',
     description: 'دعوت‌نامهٔ مراسم نامزدی',
   },
 
