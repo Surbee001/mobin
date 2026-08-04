@@ -38,10 +38,14 @@ import type { Phase } from './eventPhase'
  *
  * These two used to ride on the same <img>, on the theory that a wrapper
  * carrying the mask would form a stacking context and seal the multiply
- * inside it. The meadow disproves that theory in the same page: its plate has
- * no alpha at all — line work on solid white — and it is masked by a wrapper
- * and multiplied on the image within, and the white drops out exactly as it
- * should. The blend reaches the paper through the wrapper.
+ * inside it. The meadow was read as disproving that — its plate had no alpha
+ * at all, line work on solid white, masked by a wrapper and multiplied on the
+ * image within, and the white dropped out as it should.
+ *
+ * Take that as evidence about one engine, not as a guarantee. A mask does form
+ * an isolated group by the letter of the compositing spec, and a multiply
+ * sealed inside one returns its source untouched. Neither plate relies on the
+ * answer any more: both are cut outs, and the alpha is what carries them.
  *
  * What mask-and-blend on one element DOES do is put the element on a
  * compositing path some engines flatten onto an opaque backing before
@@ -61,21 +65,18 @@ import type { Phase } from './eventPhase'
  *
  * ── And why the plate carries alpha ──
  *
- * The meadow's artwork is line work on solid white, which `multiply` disposes
- * of because white multiplied by anything is that thing. That holds only
+ * A plate of line work on solid white leans on `multiply` to dispose of the
+ * ground, because white multiplied by anything is that thing. That holds only
  * while the white is exactly white, and the filters above do not leave it
  * there: `sepia` alone tints white to (255,255,245) and `brightness(0.99)`
  * takes all three channels down again. Multiplied, that near-white prints a
- * faint warm rectangle over the paper.
- *
- * On the meadow it is invisible, because the meadow spans the full width and
- * a tint with no edge in view is just the page being slightly warmer. These
- * are narrow plates standing beside type, where the same tint has four edges
- * and reads immediately as a pasted-on box.
+ * faint warm rectangle over the paper — and where the mask isolates the blend
+ * it is not faint at all, it is the whole tinted ground.
  *
  * So peonies-sprig.webp is cut out — alpha, not white, everywhere the paper
  * should show. The multiply below is then doing only what it is good for,
  * printing the ink into the paper, and there is no background left to leak.
+ * The meadow's plate is cut out the same way now, for the same reason.
  */
 
 /**

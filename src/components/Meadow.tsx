@@ -11,10 +11,24 @@ import type { Phase } from './eventPhase'
  * that those are two different sections it needs to be a thing either can
  * carry.
  *
- * The artwork is line work on solid white, so `multiply` is what makes it sit
- * on the page: white multiplied by the background *is* the background, so the
- * paper shows straight through and only the drawn lines survive. No cut-out
- * needed.
+ * The artwork is a cut-out — alpha, not white, everywhere the paper should
+ * show — for the same reason the sprigs beside the date are.
+ *
+ * It used to be line work on solid white, leaning on `multiply` alone to
+ * dispose of the ground: white multiplied by the background *is* the
+ * background. That is true, and it rendered correctly — but it makes the band
+ * depend on the blend surviving every engine, every stacking context and every
+ * wrapper that ever gets added above it. The wrapper below already carries a
+ * mask, and a mask forms an isolated group; a multiply sealed inside one
+ * returns its source unchanged, and the source would have been a white ground
+ * the warm filter had already taken off-white.
+ *
+ * So the ground was moved into the alpha channel: `alpha = 255 - luminance`,
+ * which is what the grey was encoding in the first place. The `multiply` below
+ * stays, but nothing depends on it any more — it only sinks the ink a little
+ * further into the paper. The ink is held at a fraction of its own grey so
+ * that source-over lands on the weight the multiply used to give it, rather
+ * than adding the ink back on top of the paper it is meant to be staining.
  *
  * The top is masked rather than covered with a gradient the colour of the
  * page. Same look, but it keeps working if the background ever changes — and
