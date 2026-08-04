@@ -5,12 +5,13 @@ import confetti from 'canvas-confetti'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useGSAP } from '@gsap/react'
+import { useScroll } from './SmoothScroll'
 
 gsap.registerPlugin(ScrollTrigger, useGSAP)
 
 /**
- * Two cannons at the edges of the screen, fired once when the closing
- * section comes into view.
+ * Two cannons at the edges of the screen, fired once when the clock comes
+ * into view.
  *
  * The colours are read from the stylesheet rather than listed here, so the
  * confetti follows the palette — including anything changed in the theme
@@ -29,10 +30,26 @@ const PALETTE = [
 
 export function Confetti({ trigger }: { trigger: string }) {
   const canvas = useRef<HTMLCanvasElement>(null)
+  const { locked } = useScroll()
 
   useGSAP(() => {
     const el = canvas.current
-    if (!el) return
+    // Nothing is built while the envelope is still sealed, and that is the
+    // fix for cannons that went off before anybody had opened anything.
+    //
+    // A sealed page is clamped to `height: 100dvh; overflow: hidden` (see
+    // globals.css) so it cannot be scrolled behind the envelope, and its
+    // maximum scroll offset is therefore ZERO — measured, not assumed. A
+    // ScrollTrigger built against a scroll range with no room in it has no
+    // honest answer to give: a start thousands of pixels down the page has to
+    // resolve to somewhere inside [0, 0], which is the position the page is
+    // already at. Whether that counts as met is left to the library's clamping,
+    // and it is not a question worth having an opinion about — `once: true`
+    // means being wrong costs the whole volley, and no later refresh can give
+    // it back, because by then the trigger has fired and retired itself.
+    //
+    // So it is simply not built until there is a page to measure.
+    if (!el || locked) return
 
     // Its own canvas rather than the library's global one, so the z-index is
     // ours and React can tear it down cleanly.
@@ -81,24 +98,40 @@ export function Confetti({ trigger }: { trigger: string }) {
       })
     }
 
-    const st = ScrollTrigger.create({
-      trigger,
-      // Late on purpose. The closing section is tall, so its top crosses the
-      // viewport well before the clock is what you are actually looking at —
-      // firing on first contact spends the whole thing while the map is still
-      // on screen.
-      start: 'top 40%',
-      once: true,
-      onEnter: volley,
+    let st: ScrollTrigger | null = null
+
+    // One frame's grace before measuring. `locked` is lowered by the provider
+    // ABOVE this component, and React runs a child's effects before its
+    // parent's — so at this instant the <body> attribute that releases the
+    // page is still saying it is sealed and the document is still one screen
+    // tall. A frame later the lock is off, the provider's own
+    // `ScrollTrigger.refresh()` has been and gone, and the page measures at
+    // its full height.
+    const frame = requestAnimationFrame(() => {
+      st = ScrollTrigger.create({
+        trigger,
+        // Late on purpose. The section opens with a good deal of air above the
+        // eyebrow, so its top crosses the viewport well before the clock is
+        // what you are actually looking at — firing on first contact spends
+        // the whole thing on an empty screen. At a third of the way up, the
+        // digits are on their way in and the paper still has room above them
+        // for the cannons to throw into.
+        start: 'top 35%',
+        once: true,
+        onEnter: volley,
+      })
     })
 
     return () => {
-      st.kill()
+      cancelAnimationFrame(frame)
+      // Built outside the callback, so gsap's own context is not tracking it
+      // and this kill is the only one there will be.
+      st?.kill()
       // Clears the canvas and drops any particles still in flight, so a fast
       // unmount cannot leave them animating against a detached element.
       fire.reset()
     }
-  })
+  }, [locked])
 
   return (
     <canvas

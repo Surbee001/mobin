@@ -37,8 +37,8 @@ export function Invite({ design = site.design.hero }: { design?: HeroDesign }) {
       {/* Says there is a page under the card, until the guest agrees. */}
       <ScrollCue />
 
-      {/* Fires once, when the closing section comes into view. */}
-      <Confetti trigger="#finale" />
+      {/* Fires once, when the clock comes into view. */}
+      <Confetti trigger="#countdown" />
 
       {/* Starts under the recitation, then loops. */}
       <Music />

@@ -11,6 +11,7 @@ import { CardVerse } from './CardVerse'
 import { CARD_LANDED } from './NameLines'
 import { WaxSeal } from './WaxSeal'
 import { useScroll } from './SmoothScroll'
+import { openEnvelope } from './envelopeGate'
 import { site, type HeroDesign } from '@/site.config'
 
 gsap.registerPlugin(Flip, useGSAP)
@@ -192,6 +193,11 @@ export function Opening({ design = site.design.hero }: { design?: HeroDesign }) 
   const open = () => {
     if (played.current) return
     played.current = true
+    // Sound first, and synchronously — the recitation and the music are both
+    // armed off this call, and the browser only grants them the right to play
+    // inside the task this click started. See envelopeGate.ts. Nothing here
+    // touches React state, so the timeline still starts in the same tick.
+    openEnvelope()
     tl.current?.play()
   }
 

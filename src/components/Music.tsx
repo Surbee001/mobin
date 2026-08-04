@@ -4,9 +4,18 @@ import { useEffect, useRef, useState } from 'react'
 import { gsap } from 'gsap'
 import { SpeakerSimpleHigh, SpeakerSimpleSlash } from '@phosphor-icons/react'
 import { useScroll } from './SmoothScroll'
+import { prime, setLevel } from './audioLevel'
+import { whenOpened } from './envelopeGate'
 import { afterVoice } from './voiceGate'
 
-/** Where it settles. Background, not foreground. */
+/**
+ * Where it settles. Background, not foreground.
+ *
+ * Every level here goes through `setLevel` rather than `audio.volume`, which
+ * on iOS is read-only and ignores what it is given — so until that changed,
+ * this 0.32 was a desktop-only instruction and the music came up under the
+ * page at FULL volume on a phone. See audioLevel.ts.
+ */
 const VOLUME = 0.32
 /** Long enough that it arrives rather than starts. */
 const FADE_IN = 2.4
@@ -24,7 +33,9 @@ const FADE_IN = 2.4
  * page make sound until the guest has interacted with it. What rescues it is
  * that opening the envelope IS a gesture — the element is primed on the back
  * of it (played muted for an instant and paused again), which is enough to
- * satisfy the policy for the real start ten seconds later.
+ * satisfy the policy for the real start ten seconds later. Which is why this
+ * arms on `whenOpened`, inside the click itself, rather than on the scroll
+ * lock four seconds later: by then the gesture has stopped counting.
  *
  * The queue is joined only once priming has settled, and deliberately so: the
  * gate can open in the same tick when the recitation is blocked outright, and
@@ -50,63 +61,81 @@ export function Music() {
   const { locked } = useScroll()
 
   useEffect(() => {
-    const audio = el.current
-    if (!audio || locked || armed.current) return
-    armed.current = true
+    whenOpened(() => {
+      const audio = el.current
+      if (!audio || armed.current) return
+      armed.current = true
 
-    const start = () => {
-      if (started.current || mutedRef.current) return
-      started.current = true
+      const start = () => {
+        if (started.current || mutedRef.current) return
+        started.current = true
 
-      audio.volume = 0
+        setLevel(audio, 0)
+        audio
+          .play()
+          .then(() => {
+            setAudible(true)
+            const fade = { v: 0 }
+            gsap.to(fade, {
+              v: VOLUME,
+              duration: FADE_IN,
+              ease: 'power1.inOut',
+              onUpdate: () => setLevel(audio, fade.v),
+            })
+          })
+          .catch(() => {
+            // Blocked after all. Let the toggle offer it instead.
+            started.current = false
+          })
+      }
+
+      // Prime on the gesture that opened the envelope, then take a place in
+      // the queue behind the recitation — see the note above for why in that
+      // order. `prime` is the gain stage and has to happen on the gesture too,
+      // for its own reasons (audioLevel.ts); the muted play below is the
+      // autoplay one.
+      prime(audio)
+      audio.muted = true
       audio
         .play()
         .then(() => {
-          setAudible(true)
-          gsap.to(audio, { volume: VOLUME, duration: FADE_IN, ease: 'power1.inOut' })
+          audio.pause()
+          audio.currentTime = 0
         })
         .catch(() => {
-          // Blocked after all. Let the toggle offer it instead.
-          started.current = false
+          // Nothing to do — the toggle is still there.
         })
-    }
-
-    // Prime on the gesture that opened the envelope, then take a place in the
-    // queue behind the recitation — see the note above for why in that order.
-    audio.muted = true
-    audio
-      .play()
-      .then(() => {
-        audio.pause()
-        audio.currentTime = 0
-      })
-      .catch(() => {
-        // Nothing to do — the toggle is still there.
-      })
-      .finally(() => {
-        audio.muted = false
-        afterVoice(start)
-      })
-  }, [locked])
+        .finally(() => {
+          audio.muted = false
+          afterVoice(start)
+        })
+    })
+  }, [])
 
   const toggle = () => {
     const audio = el.current
     if (!audio) return
 
     if (audio.paused) {
-      audio.volume = 0
+      setLevel(audio, 0)
       audio.play().then(() => {
         mutedRef.current = false
         setAudible(true)
         started.current = true
-        gsap.to(audio, { volume: VOLUME, duration: 0.8 })
+        const up = { v: 0 }
+        gsap.to(up, { v: VOLUME, duration: 0.8, onUpdate: () => setLevel(audio, up.v) })
       })
       return
     }
 
-    gsap.to(audio, {
-      volume: 0,
+    // Faded out and THEN paused, so the button never cuts the track dead.
+    // The completion callback is why these ramps stay in GSAP rather than
+    // moving to Web Audio's own scheduling, which has nothing like it.
+    const down = { v: VOLUME }
+    gsap.to(down, {
+      v: 0,
       duration: 0.5,
+      onUpdate: () => setLevel(audio, down.v),
       onComplete: () => {
         audio.pause()
         setAudible(false)
@@ -122,9 +151,13 @@ export function Music() {
           on it until the envelope has actually been opened. */}
       <audio ref={el} src="/music.mp3" loop preload="none" />
 
-      {/* Only offered once the envelope is open. There is nothing to control
-          before that, and a mute button on the sealed envelope would be a
-          promise of sound that has not arrived yet. */}
+      {/* Still on the scroll lock rather than on the opening, even though the
+          sound now starts a few seconds ahead of it. The opening stage is an
+          opaque sheet at z-50 and so is this button: offered any earlier it
+          would sit on top of the envelope falling away. Nothing is lost by
+          waiting — what is playing over those seconds is the recitation, which
+          is not what this button controls, and the music only comes up once
+          the recitation has finished. */}
       {!locked && (
         <button
           type="button"

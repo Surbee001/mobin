@@ -2,8 +2,10 @@
 
 import { useEffect, useRef } from 'react'
 import Image from 'next/image'
+import { gsap } from 'gsap'
 import { site } from '@/site.config'
-import { useScroll } from './SmoothScroll'
+import { prime, setLevel } from './audioLevel'
+import { whenOpened } from './envelopeGate'
 import { registerVoice, voiceStarted, voiceFinished } from './voiceGate'
 
 /**
@@ -36,10 +38,45 @@ import { registerVoice, voiceStarted, voiceFinished } from './voiceGate'
  */
 const PANEL_VH = 2.9
 
+/**
+ * Where the recitation settles, and how long it takes to get there.
+ *
+ * The level first: this is the loudest thing on the site by some way, and it
+ * arrives unannounced a moment after the envelope is opened. 0.8 takes a
+ * couple of dB off the top, which is the difference between a voice speaking
+ * in the room and one being played AT the guest. Turn it down further and the
+ * words stop being clear on a phone speaker.
+ *
+ * Then the fade. There is very little room for one — decoded and measured in
+ * 20ms windows, blessing-voice.mp3 runs:
+ *
+ *     0.00–0.10s   −79 → −53 dB   silence
+ *     0.12s        −29 dB         the first breath of the word
+ *     0.16s        −18 dB         full speaking level
+ *
+ * A TENTH of a second of lead-in, and that is all there is. So a fade here
+ * cannot be free: past about 0.1s it is riding over speech, and the only
+ * question is how much of the first word it takes with it.
+ *
+ * 0.9s on `power2.out` is the answer this settled on, and it is a compromise
+ * worth stating plainly — the opening word IS attenuated. The curve is at
+ * ~25% when the voice starts, ~55% by 0.3s, ~89% by 0.6s, and full by 0.9s,
+ * so what a guest hears is the first word arriving from somewhere and the
+ * second one already in the room. Nothing is trimmed; the audio is complete
+ * from its first sample and merely quiet across the first syllable of it.
+ *
+ * The shorter, steeper fade this had before (0.55s, `power3.out`) preserved
+ * the first word almost perfectly and was, in exchange, imperceptible. If the
+ * opening word turns out to matter more than the entrance, walk these two
+ * back toward that; they are the only knobs.
+ */
+const VOICE_VOLUME = 0.8
+const VOICE_FADE_IN = 0.9
+const VOICE_FADE_EASE = 'power2.out'
+
 export function Poem() {
   const voice = useRef<HTMLAudioElement>(null)
   const played = useRef(false)
-  const { locked } = useScroll()
 
   /**
    * The recitation starts when the envelope opens, not when this panel is
@@ -50,6 +87,12 @@ export function Poem() {
    * it: opening the envelope IS the gesture, so this plays on the strength of
    * it instead of having to be primed muted and started cold a panel later.
    * The audio still lives on this section because the words are its words.
+   *
+   * Hung on `whenOpened` and not on the scroll lock. The lock is lowered when
+   * the card has finished becoming the hero, which is the far end of a
+   * four-second sequence — long enough that the voice arrived over a settled
+   * page rather than over the envelope falling away, and long enough that the
+   * click was no longer the current task when `play()` was called.
    */
   useEffect(() => {
     /**
@@ -67,17 +110,44 @@ export function Poem() {
       // window where both are allowed to start.
       voiceStarted()
 
-      audio.play().catch(() => {
-        played.current = false
-        // Nothing to wait for — let the music through rather than silencing
-        // it for the rest of the visit.
-        voiceFinished()
-      })
+      // Build the gain stage while the opening gesture is still the current
+      // task — see audioLevel.ts for why it cannot be done later.
+      prime(audio)
+      setLevel(audio, 0)
+
+      audio
+        .play()
+        .then(() => {
+          // The ramp is hung on the RESOLVED promise, not fired alongside
+          // play(). This track is `preload="none"`, so play() is also the
+          // fetch — start the tween beside it and on a slow connection the
+          // whole fade would burn off while the file was still arriving, and
+          // the voice would come in at full volume having faded into silence.
+          // play() resolves when sound is actually being made.
+          //
+          // GSAP drives a plain object rather than the element, and the level
+          // is applied in `onUpdate`. Tweening `audio.volume` directly is what
+          // made this fade a no-op on iOS in the first place.
+          const fade = { v: 0 }
+          gsap.to(fade, {
+            v: VOICE_VOLUME,
+            duration: VOICE_FADE_IN,
+            ease: VOICE_FADE_EASE,
+            onUpdate: () => setLevel(audio, fade.v),
+          })
+        })
+        .catch(() => {
+          played.current = false
+          setLevel(audio, VOICE_VOLUME)
+          // Nothing to wait for — let the music through rather than silencing
+          // it for the rest of the visit.
+          voiceFinished()
+        })
     }
 
     registerVoice(begin)
-    if (!locked) begin()
-  }, [locked])
+    whenOpened(begin)
+  }, [])
 
   return (
     <section

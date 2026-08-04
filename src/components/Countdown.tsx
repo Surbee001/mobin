@@ -108,6 +108,8 @@ export function Countdown() {
   return (
     <section
       ref={scope}
+      // Named so the confetti has something to fire on.
+      id="countdown"
       dir="rtl"
       className="relative z-40 flex flex-col items-center justify-center bg-paper px-6 pb-32 pt-32 sm:pb-40 sm:pt-44"
     >
