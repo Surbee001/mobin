@@ -1057,6 +1057,23 @@ body[data-locked='true'] {
   letter-spacing: 0;
 }
 
+/* The two settings share one grid cell, and what keeps them off each other is
+   the swap itself: NameLines parks the Persian off the left edge before the
+   loop starts. Under reduced motion there IS no loop — the component returns
+   before it parks anything — so both settings sat in the cell at once and the
+   names rendered as Latin and Nastaliq printed on top of one another.
+
+   Hidden in CSS rather than fixed in the timeline, and deliberately: this
+   holds from the first paint, so there is no frame in which the overlap is
+   visible, and it needs no JavaScript to have run. The Persian is `aria-hidden`
+   and says exactly what the Latin beside it says, so a guest who has asked for
+   less movement loses a setting of the names and no information. */
+@media (prefers-reduced-motion: reduce) {
+  .name-fa {
+    visibility: hidden;
+  }
+}
+
 /* Wide-tracked small caps — the recurring detail line.
    Latin only: never apply this to Arabic or Persian. */
 .tracked {

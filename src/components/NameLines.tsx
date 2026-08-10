@@ -104,6 +104,10 @@ export function NameLines({
 
   useGSAP(
     () => {
+      // No swap, and so no need to park anything: the stylesheet hides the
+      // Persian setting outright under this query, because the two share a
+      // grid cell and it is the parking below that normally keeps them apart.
+      // See `.name-fa` in globals.css — the two have to stay in step.
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
 
       const EN = '[data-name-en]'
