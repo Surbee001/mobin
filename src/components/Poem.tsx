@@ -2,7 +2,6 @@
 
 import { useEffect, useRef } from 'react'
 import Image from 'next/image'
-import { gsap } from 'gsap'
 import { site } from '@/site.config'
 import { prime, setLevel } from './audioLevel'
 import { whenOpened } from './envelopeGate'
@@ -39,40 +38,36 @@ import { registerVoice, voiceStarted, voiceFinished } from './voiceGate'
 const PANEL_VH = 2.9
 
 /**
- * Where the recitation settles, and how long it takes to get there.
+ * Where the recitation sits. It starts there — there is no fade in.
  *
- * The level first: this is the loudest thing on the site by some way, and it
- * arrives unannounced a moment after the envelope is opened. 0.8 takes a
- * couple of dB off the top, which is the difference between a voice speaking
- * in the room and one being played AT the guest. Turn it down further and the
- * words stop being clear on a phone speaker.
+ * The level: this is the loudest thing on the site by some way, and it arrives
+ * unannounced a moment after the envelope is opened. 0.8 takes a couple of dB
+ * off the top, which is the difference between a voice speaking in the room
+ * and one being played AT the guest. Turn it down further and the words stop
+ * being clear on a phone speaker.
  *
- * Then the fade. There is very little room for one — decoded and measured in
- * 20ms windows, blessing-voice.mp3 runs:
+ * And the fade that used to be here is gone, deliberately. There was never
+ * room for one — decoded and measured in 20ms windows, blessing-voice.mp3
+ * runs:
  *
  *     0.00–0.10s   −79 → −53 dB   silence
  *     0.12s        −29 dB         the first breath of the word
  *     0.16s        −18 dB         full speaking level
  *
- * A TENTH of a second of lead-in, and that is all there is. So a fade here
- * cannot be free: past about 0.1s it is riding over speech, and the only
- * question is how much of the first word it takes with it.
+ * A TENTH of a second of lead-in, and that is all there is. Any ramp long
+ * enough to be heard as an entrance was therefore riding over speech, and the
+ * only question was how much of the opening word it took with it — the 0.9s
+ * `power2.out` this last carried was at ~25% when the voice began, so the
+ * first word arrived from somewhere off in the distance. The word matters
+ * more than the entrance. The track is now simply set to its level before
+ * `play()` and starts at it, which is what the file was mastered for: it
+ * opens on a tenth of a second of its own silence either way.
  *
- * 0.9s on `power2.out` is the answer this settled on, and it is a compromise
- * worth stating plainly — the opening word IS attenuated. The curve is at
- * ~25% when the voice starts, ~55% by 0.3s, ~89% by 0.6s, and full by 0.9s,
- * so what a guest hears is the first word arriving from somewhere and the
- * second one already in the room. Nothing is trimmed; the audio is complete
- * from its first sample and merely quiet across the first syllable of it.
- *
- * The shorter, steeper fade this had before (0.55s, `power3.out`) preserved
- * the first word almost perfectly and was, in exchange, imperceptible. If the
- * opening word turns out to matter more than the entrance, walk these two
- * back toward that; they are the only knobs.
+ * If a fade is ever wanted back, it belongs in the FILE and not here — a
+ * couple of frames of ramp printed into the audio ahead of the first breath
+ * costs nothing and cannot land on top of a word.
  */
 const VOICE_VOLUME = 0.8
-const VOICE_FADE_IN = 0.9
-const VOICE_FADE_EASE = 'power2.out'
 
 export function Poem() {
   const voice = useRef<HTMLAudioElement>(null)
@@ -113,36 +108,18 @@ export function Poem() {
       // Build the gain stage while the opening gesture is still the current
       // task — see audioLevel.ts for why it cannot be done later.
       prime(audio)
-      setLevel(audio, 0)
+      // Set BEFORE play(), not after it resolves. The gain stage is already
+      // standing by this line, so the very first sample comes out at the level
+      // it is meant to — there is no window in which the track is audible at
+      // whatever the element was last left at.
+      setLevel(audio, VOICE_VOLUME)
 
-      audio
-        .play()
-        .then(() => {
-          // The ramp is hung on the RESOLVED promise, not fired alongside
-          // play(). This track is `preload="none"`, so play() is also the
-          // fetch — start the tween beside it and on a slow connection the
-          // whole fade would burn off while the file was still arriving, and
-          // the voice would come in at full volume having faded into silence.
-          // play() resolves when sound is actually being made.
-          //
-          // GSAP drives a plain object rather than the element, and the level
-          // is applied in `onUpdate`. Tweening `audio.volume` directly is what
-          // made this fade a no-op on iOS in the first place.
-          const fade = { v: 0 }
-          gsap.to(fade, {
-            v: VOICE_VOLUME,
-            duration: VOICE_FADE_IN,
-            ease: VOICE_FADE_EASE,
-            onUpdate: () => setLevel(audio, fade.v),
-          })
-        })
-        .catch(() => {
-          played.current = false
-          setLevel(audio, VOICE_VOLUME)
-          // Nothing to wait for — let the music through rather than silencing
-          // it for the rest of the visit.
-          voiceFinished()
-        })
+      audio.play().catch(() => {
+        played.current = false
+        // Nothing to wait for — let the music through rather than silencing
+        // it for the rest of the visit.
+        voiceFinished()
+      })
     }
 
     registerVoice(begin)
