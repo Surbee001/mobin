@@ -21,6 +21,12 @@ export function GET() {
     // One UID for every guest, so a second download replaces the first rather
     // than sitting beside it — and SEQUENCE is what permits the replacement.
     // See `calendar.sequence` in site.config.
+    //
+    // It still says «engagement», and it has to. This string is not a
+    // description of the day, it is the event's IDENTITY: correcting it to
+    // match the title would make every re-download a different event, and a
+    // guest who had already added the old one would end up holding two. It is
+    // never shown to anyone. Leave it wrong.
     'UID:mina-mobin-engagement@invitation',
     `SEQUENCE:${site.calendar.sequence}`,
     // When this invitation was last revised. It has to move when the event

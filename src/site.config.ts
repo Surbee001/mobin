@@ -204,8 +204,18 @@ export const site = {
    * the card faces — the Persian on this site all lives below the hero.
    */
   monogram: {
-    /** Two lines of script above the names. */
-    lead: ['Save the date', 'for the engagement of'],
+    /**
+     * Two lines of script above the names.
+     *
+     * «marriage», not «engagement» and not «wedding». The day is the عقد —
+     * the ceremony at which the two are married — and English has no word for
+     * it that a guest would recognise, so this is the nearest true one. The
+     * wedding party that may follow is عروسی and is not what this card is for.
+     *
+     * This line is on the share image as well as on the card. Changing it
+     * means re-running `npm run og`.
+     */
+    lead: ['Save the date', 'for the marriage of'],
     /** Under the date. Set in wide small capitals. */
     footer: 'FORMAL INVITATION TO FOLLOW',
   },
@@ -298,7 +308,7 @@ export const site = {
   calendar: {
     label: 'افزودن به تقویم',
     /** Title of the event as it appears in the guest's calendar. */
-    eventTitle: 'جشن نامزدی مینا و مبین',
+    eventTitle: 'جشن عقد مینا و مبین',
     /**
      * How long the event runs, in minutes. 240 from 11:15 in the morning ends
      * it at 3:15 in the afternoon — kept at the length it had when the hour
@@ -316,16 +326,19 @@ export const site = {
      * added the event before the date moved keeps the old time for ever, and
      * nothing about the site tells them otherwise.
      *
-     * So: bump it by one whenever the date, the time, the length or the venue
-     * changes. It costs nothing to bump needlessly and it costs a guest the
-     * day not to bump when it mattered.
+     * So: bump it by one whenever the date, the time, the length, the venue or
+     * the TITLE changes. It costs nothing to bump needlessly and it costs a
+     * guest the day not to bump when it mattered.
      *
      * 0 → 1: moved from 18 September, 8pm to 30 August, 11pm.
      * 1 → 2: the same day, but 11:15 in the MORNING — it was never an
      *   evening. Anyone who added the entry before this keeps 11pm without
      *   it, which is twelve hours late for a wedding.
+     * 2 → 3: the entry called the day a نامزدی. It is the عقد. Nothing about
+     *   when or where it happens moved, but a guest should not have the wrong
+     *   occasion sitting in their calendar for the next year.
      */
-    sequence: 2,
+    sequence: 3,
   },
 
   /** The prompt on the sealed envelope, before it is opened. */
