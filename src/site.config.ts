@@ -29,15 +29,19 @@ export const site = {
    * link that reads «مینا و مبین» alone says a pair of names and nothing about
    * what is being announced.
    *
-   * The two lines name it differently, and deliberately. The title says
-   * نامزدی — the engagement, which is what the families are celebrating and
-   * how a guest would describe the day to someone else. The description says
-   * عقد — the ceremony itself, the thing that actually happens at 11:15 in a
-   * سالن عقد (see `location`). NOT عروسی in either: that is the wedding, and
-   * this is not it.
+   * عقد in both — the ceremony itself, which is what happens at a quarter
+   * past eleven in a سالن عقد (see `location`). NOT نامزدی, which is the
+   * engagement and is a different occasion, and NOT عروسی, which is the
+   * wedding party and is a third.
+   *
+   * Two other places still name the day, and both still call it an
+   * engagement: `calendar.eventTitle`, which is what a guest is left holding
+   * in their calendar, and `monogram.lead`, which is printed on the card
+   * itself. If this is an عقد then both are wrong — and the card is also the
+   * share image, so correcting that one means re-running `npm run og`.
    */
   meta: {
-    title: 'نامزدی مینا و مبین',
+    title: 'عقد مینا و مبین',
     description: 'دعوت‌نامهٔ مراسم عقد',
   },
 
