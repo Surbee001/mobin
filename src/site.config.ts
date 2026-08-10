@@ -25,16 +25,20 @@ export const site = {
   /**
    * Shown in the browser tab / when the link is shared.
    *
-   * The title names the OCCASION and not only the couple: a tab or a shared
+   * Both lines name the OCCASION and not only the couple: a tab or a shared
    * link that reads «مینا و مبین» alone says a pair of names and nothing about
-   * what is being announced. نامزدی — the engagement. NOT عروسی, and not عقد:
-   * those are the wedding, and this is the party before it. The venue happens
-   * to be a دفتر ازدواج (see `location`), which is the registry's own name for
-   * itself and not a description of the day.
+   * what is being announced.
+   *
+   * The two lines name it differently, and deliberately. The title says
+   * نامزدی — the engagement, which is what the families are celebrating and
+   * how a guest would describe the day to someone else. The description says
+   * عقد — the ceremony itself, the thing that actually happens at 11:15 in a
+   * سالن عقد (see `location`). NOT عروسی in either: that is the wedding, and
+   * this is not it.
    */
   meta: {
     title: 'نامزدی مینا و مبین',
-    description: 'دعوت‌نامهٔ مراسم نامزدی',
+    description: 'دعوت‌نامهٔ مراسم عقد',
   },
 
   /** The two names, for the card + hero. */
@@ -327,8 +331,9 @@ export const site = {
     promptEn: 'TOUCH TO OPEN',
     /**
      * The cue at the foot of the hero, once the card has landed — the card
-     * fills the screen and gives no sign that there is a page under it. It
-     * goes the moment the guest scrolls, and does not come back.
+     * fills the screen and gives no sign that there is a page under it. The
+     * written line goes on the first scroll and does not come back; the caret
+     * under it stays for the whole descent. See components/ScrollCue.tsx.
      */
     scrollHint: 'به پایین بکشید',
   },

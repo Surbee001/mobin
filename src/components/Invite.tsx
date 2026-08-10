@@ -34,7 +34,7 @@ export function Invite({ design = site.design.hero }: { design?: HeroDesign }) {
         <Location />
       </main>
 
-      {/* Says there is a page under the card, until the guest agrees. */}
+      {/* Says there is more below, until there isn't. */}
       <ScrollCue />
 
       {/* Fires once, when the clock comes into view. */}
