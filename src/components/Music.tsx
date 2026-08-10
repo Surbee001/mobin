@@ -162,6 +162,9 @@ export function Music() {
         <button
           type="button"
           onClick={toggle}
+          // A handle for scripts/og-shot.mjs, which hides the page's furniture
+          // before photographing the card. Nothing styles off it.
+          data-music-toggle
           aria-label={audible ? 'قطع موسیقی' : 'پخش موسیقی'}
           aria-pressed={audible}
           className="fixed bottom-5 left-5 z-50 grid h-10 w-10 place-items-center rounded-full text-ink-soft transition-opacity hover:opacity-100"

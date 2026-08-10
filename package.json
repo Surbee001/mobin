@@ -8,6 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "og": "next build && node scripts/og-shot.mjs",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
