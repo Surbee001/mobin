@@ -22,12 +22,14 @@ export function GET() {
     // than sitting beside it — and SEQUENCE is what permits the replacement.
     // See `calendar.sequence` in site.config.
     //
-    // It still says «engagement», and it has to. This string is not a
-    // description of the day, it is the event's IDENTITY: correcting it to
-    // match the title would make every re-download a different event, and a
-    // guest who had already added the old one would end up holding two. It is
-    // never shown to anyone. Leave it wrong.
-    'UID:mina-mobin-engagement@invitation',
+    // This is the event's IDENTITY and not a description of it, so it is not
+    // ordinarily safe to correct: a calendar holding the old string and handed
+    // the new one has no way to know they are the same day, and keeps both.
+    // It said `engagement` until the invitation had been sent to nobody, which
+    // was the one moment it could be changed for free. Now that it has gone
+    // out, it is frozen — whatever it says, and however the day is renamed
+    // again, leave this line alone.
+    'UID:mina-mobin-aghd@invitation',
     `SEQUENCE:${site.calendar.sequence}`,
     // When this invitation was last revised. It has to move when the event
     // does, or a calendar weighing two copies of the same UID has nothing to

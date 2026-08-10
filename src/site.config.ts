@@ -337,6 +337,14 @@ export const site = {
      * 2 → 3: the entry called the day a نامزدی. It is the عقد. Nothing about
      *   when or where it happens moved, but a guest should not have the wrong
      *   occasion sitting in their calendar for the next year.
+     *
+     * The UID was corrected at the same time, which it could be because the
+     * invitation had not been sent to anyone yet — so to every calendar in the
+     * world this is now a new event and none of the count above means anything
+     * to them. It is left where it is rather than reset: the number only ever
+     * has to be higher than the last one, and anyone who saved the date while
+     * this was being built has an entry under the old UID that will never be
+     * updated by any of this. Delete that one by hand.
      */
     sequence: 3,
   },
