@@ -789,7 +789,17 @@ body[data-locked='true'] {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background-image: url('/garden-arch.webp');
+  /* -v2 is the same sheet at the same 1600×1197, re-encoded: 246KB → 142KB.
+     It was the heaviest thing on the first screen once the fonts stopped
+     preloading, and it is a background image, so nothing about it passes
+     through next/image on the way — what is in /public is what a guest is
+     sent. The quality it lost is not reachable from here: this is laid down
+     at 47% opacity under a `multiply` and behind the clip-path below, and
+     measured against the original at the size a phone actually paints it,
+     half the pixels differ by 1/255 and 99 in 100 by under 11 — before the
+     opacity halves even that. The master is in the history at the commit
+     that retired it, if a finer one is ever wanted. */
+  background-image: url('/garden-arch-v2.webp');
   /* Both axes given, so the sheet is stretched to the pocket. That is what
      the trace asked for, and on the landscape envelope the two shapes are
      close enough that the squash is a few percent. See the portrait override
