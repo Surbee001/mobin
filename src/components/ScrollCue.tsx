@@ -50,6 +50,7 @@ export function ScrollCue() {
   const { locked } = useScroll()
   const scope = useRef<HTMLDivElement>(null)
   const hint = useRef<HTMLSpanElement>(null)
+  const scrim = useRef<HTMLDivElement>(null)
   const caret = useRef<SVGSVGElement>(null)
   const hintRead = useRef(false)
   const dismissed = useRef(false)
@@ -71,9 +72,14 @@ export function ScrollCue() {
       // instruction. Skipped outright under reduced motion, where a thing that
       // never stops moving is exactly what was asked against, and it now never
       // stops for the length of the whole page.
+      //
+      // The travel was 6px, which at this size is a shimmer rather than a
+      // movement — on a card holding this still it read as a rendering
+      // artefact. It is the only thing on the first screen that moves, so it
+      // is the whole of the page's claim to having more below it.
       if (!reduced) {
         gsap.to(caret.current, {
-          y: 6,
+          y: 10,
           duration: 1.15,
           repeat: -1,
           yoyo: true,
@@ -93,10 +99,15 @@ export function ScrollCue() {
     // the length of the descent stops being an invitation and starts nagging.
     // Faded in place rather than removed, so the caret does not jump upward
     // into the room the line was occupying.
+    // The scrim goes with it, and for the same reason plus one of its own: it
+    // is toned to sit under the hero card, and the panels below the hero are
+    // their own colours — one of them dark. A fade that stayed would be
+    // dimming the foot of every one of them for the rest of the page.
     const readHint = () => {
       if (hintRead.current) return
       hintRead.current = true
       gsap.to(hint.current, { opacity: 0, duration: 0.5, ease: 'power2.in' })
+      gsap.to(scrim.current, { opacity: 0, duration: 0.5, ease: 'power2.in' })
     }
 
     // Arrived. Fade the caret out and take it out of the tree — there is
@@ -160,13 +171,39 @@ export function ScrollCue() {
       // Nothing here is clickable, and the card underneath is: a fixed strip
       // across the foot of the screen would otherwise swallow taps meant for
       // the page it is sitting on top of.
-      className="pointer-events-none fixed inset-x-0 bottom-6 z-40 flex flex-col items-center gap-2 text-ink-soft sm:bottom-8"
+      // `text-ink` rather than `text-ink-soft`. The soft tone is #a8825e on a
+      // #f2dcd4 card — about 2.6:1, under half of what small type needs to be
+      // read, and guests were reporting the page as having nothing below it.
+      // It was not that they ignored the cue; they never saw it.
+      className="pointer-events-none fixed inset-x-0 bottom-6 z-40 flex flex-col items-center gap-2 text-ink sm:bottom-8"
       style={{ opacity: 0 }}
     >
-      <span ref={hint} lang="fa" className="font-persian text-[0.95rem] font-light">
+      {/* Held inside the cue, not beside it, for two reasons: it inherits the
+          one fade-in rather than needing a second, and og-shot.mjs hides the
+          page's furniture by `[data-scroll-cue]` — a sibling would have been
+          left in the photograph. Pushed back down by the offset the cue is
+          lifted off the floor by, so it still reaches the bottom edge. */}
+      <div
+        ref={scrim}
+        aria-hidden="true"
+        className="scroll-cue-scrim absolute inset-x-0 bottom-0 -z-10 h-40 translate-y-6 sm:translate-y-8"
+      />
+      <span ref={hint} lang="fa" className="font-persian text-[1.05rem]">
         {site.opening.scrollHint}
       </span>
-      <CaretDoubleDownIcon ref={caret} size={18} weight="light" aria-hidden="true" />
+      {/* A halo the colour of the paper. The written line only ever shows over
+          the hero card, but the caret crosses every panel below it — including
+          the one dark band, where an ink-coloured arrow on `--color-panel-poem`
+          is two near-identical greens and disappears outright. On the light
+          grounds the glow is paper on paper and costs nothing; on the dark one
+          it is the whole reason the caret is still legible. */}
+      <CaretDoubleDownIcon
+        ref={caret}
+        size={26}
+        weight="regular"
+        aria-hidden="true"
+        className="[filter:drop-shadow(0_0_4px_var(--color-paper))]"
+      />
     </div>
   )
 }

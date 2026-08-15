@@ -550,6 +550,35 @@ body[data-locked='true'] {
   width: 100%;
   height: 100%;
 }
+
+/* ─────────────────────────────────────────────────────────────
+   THE FADE UNDER THE SCROLL CUE
+
+   The card lands filling the viewport and stops exactly at the bottom edge
+   of the screen, which is precisely what a finished page looks like — guests
+   were reading the card as the whole invitation and never scrolling. A card
+   that runs on UNDER something cannot be the end of anything, so this darkens
+   the last inch of the first screen and lets it do that.
+
+   Toned in ink at low strength rather than as a gradient to any one ground
+   colour: all four hero designs put a different card behind this, and a fade
+   to a fixed hex would band against three of them. Ink over any of the four
+   just reads as the light going.
+
+   `color-mix` and not a literal rgba, so the theme editor still repaints it
+   with the rest — see the note at the top of this file. Where it is not
+   understood the whole declaration is dropped and the cue is simply left on
+   the bare card, which is where it started.
+
+   Leaves with the written line on the first scroll. See ScrollCue.tsx.
+   ───────────────────────────────────────────────────────────── */
+.scroll-cue-scrim {
+  background-image: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--color-ink) 20%, transparent),
+    transparent
+  );
+}
 .card-topline {
   padding-top: calc(6.5 * var(--u));
   padding-inline: calc(9 * var(--u));

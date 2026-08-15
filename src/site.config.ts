@@ -359,8 +359,15 @@ export const site = {
      * fills the screen and gives no sign that there is a page under it. The
      * written line goes on the first scroll and does not come back; the caret
      * under it stays for the whole descent. See components/ScrollCue.tsx.
+     *
+     * The line names the GESTURE, not the direction of travel: on a phone the
+     * finger goes up to bring the page down. It read «به پایین بکشید» — pull
+     * downward — which is the movement that takes you back to the top, i.e.
+     * the opposite of what it was asking for. The caret still points down,
+     * and the two agree: the arrow says where the page goes, the line says
+     * what to do with your hand.
      */
-    scrollHint: 'به پایین بکشید',
+    scrollHint: 'به بالا بکشید',
   },
 } as const
 
