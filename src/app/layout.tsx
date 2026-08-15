@@ -1,6 +1,10 @@
 import type { Metadata, Viewport } from 'next'
 import { Amiri, Markazi_Text, Pinyon_Script, Vazirmatn } from 'next/font/google'
 import localFont from 'next/font/local'
+// The `/next` entry, not the bare package — it reads the App Router's own
+// navigation hooks to count a client-side route change as a page view. The
+// bare one would only ever see the first load.
+import { Analytics } from '@vercel/analytics/next'
 import { LightSource } from '@/components/LightSource'
 import { site } from '@/site.config'
 import './globals.css'
@@ -141,6 +145,12 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             see components/light.ts. */}
         <LightSource />
         {children}
+        {/* Renders nothing either — it injects the counting script. Last in the
+            body so it is the last thing asked for: the invitation is opened on
+            phones on Iranian and Omani mobile data, and nothing here is worth a
+            millisecond of the card's arrival. It no-ops off Vercel, so `npm run
+            dev` and the OG screenshot are unaffected. */}
+        <Analytics />
       </body>
     </html>
   )
