@@ -9,23 +9,48 @@ import { LightSource } from '@/components/LightSource'
 import { site } from '@/site.config'
 import './globals.css'
 
+/* ─────────────────────────────────────────────────────────────
+   WHAT IS PRELOADED, AND WHY MOST OF IT IS NOT
+
+   next/font preloads every face it is given, and there are six families
+   here — which put 1.03MB of woff2 into the <head> of the first screen as
+   `<link rel=preload>`, all of it at the highest priority the browser has,
+   all of it ahead of the one thing the first screen actually shows: the
+   wax seal you have to press to open the envelope.
+
+   The sealed envelope sets no Arabic and no Persian. Amiri is the aya,
+   Markazi the card's three columns, Nastaliq every line of Persian prose —
+   none of it is above the fold, and none of it is reachable until the seal
+   has been pressed. So those carry `preload: false`: they are still
+   declared, the stylesheet still asks for them, and the browser still
+   fetches them as soon as it meets an element that needs one. It simply
+   does that at the priority a font below the fold deserves, behind the
+   seal instead of in front of it.
+
+   `display: swap` is what makes that safe — the text is readable in the
+   fallback from the first paint and re-sets when the face lands.
+
+   The two that DO stay preloaded are the two the first screen paints:
+   Tobias, and Pinyon on the monogram card showing through the notch in
+   the envelope's front.
+   ───────────────────────────────────────────────────────────── */
+
 /**
  * Tobias (Dinamo) carries every line of English on the site.
  *
- * The variable cut covers weights 100–900 upright; Tobias draws a true
- * italic rather than a slant, so the italics are loaded as separate static
- * cuts instead of riding the VF's `slnt` axis.
+ * The variable cut covers weights 100–900 upright. Tobias draws a true italic
+ * rather than a slant, so italics cannot ride the VF's `slnt` axis — they
+ * would have to be loaded as three more static cuts. They were, and nothing
+ * on the site ever set a word in them: the pair of full names at the head of
+ * the card, which the italic was bought for, is written in Pinyon now. Three
+ * preloaded files, 184KB, for no italic anywhere. They are out until there is
+ * something to set in them; the woff2s are still in ../fonts.
  *
  * NOTE: these are the TRIAL files — evaluation only, not licensed for a
  * public deployment. A retail licence is needed before this goes live.
  */
 const tobias = localFont({
-  src: [
-    { path: '../fonts/TobiasVF-TRIAL.woff2', weight: '100 900', style: 'normal' },
-    { path: '../fonts/Tobias-TRIAL-ThinItalic.woff2', weight: '100', style: 'italic' },
-    { path: '../fonts/Tobias-TRIAL-LightItalic.woff2', weight: '300', style: 'italic' },
-    { path: '../fonts/Tobias-TRIAL-RegularItalic.woff2', weight: '400', style: 'italic' },
-  ],
+  src: [{ path: '../fonts/TobiasVF-TRIAL.woff2', weight: '100 900', style: 'normal' }],
   variable: '--font-tobias',
   display: 'swap',
 })
@@ -36,6 +61,8 @@ const amiri = Amiri({
   subsets: ['arabic'],
   variable: '--font-amiri',
   display: 'swap',
+  // Two cuts, 208KB, and the aya is three screens down. See the note above.
+  preload: false,
 })
 
 /**
@@ -48,11 +75,22 @@ const amiri = Amiri({
  * and the descending tail of one line will run into the head of the next.
  *
  * Loaded locally as woff2 (424KB from a 2.3MB TTF).
+ *
+ * That 424KB is the largest single file the site serves, and it was the
+ * largest thing in the first screen's preload list — ahead of the seal, for
+ * type that begins two screens below the fold. It is the reason the note
+ * above exists. A Nastaliq is heavy because the hand needs a separate glyph
+ * for nearly every place a letter can fall in a word, so there is no lighter
+ * cut of it to reach for; the only real lever is subsetting, and subsetting
+ * to the exact words on the site saves 186KB in exchange for a font that
+ * renders a box the first time anyone edits a line of Persian. Not worth it
+ * for type that no longer blocks anything.
  */
 const nastaliq = localFont({
   src: [{ path: '../fonts/IranNastaliq.woff2', weight: '400', style: 'normal' }],
   variable: '--font-nastaliq',
   display: 'swap',
+  preload: false,
 })
 
 /** Kept for the OG image, which cannot shape Nastaliq. */
@@ -61,6 +99,7 @@ const markazi = Markazi_Text({
   subsets: ['arabic'],
   variable: '--font-markazi',
   display: 'swap',
+  preload: false,
 })
 
 /**
@@ -71,12 +110,18 @@ const markazi = Markazi_Text({
  * looking bold. Vazirmatn is Persian-first too and carries a true Thin, so
  * the two settings of the name can stand in for one another without the
  * weight jumping as they swap.
+ *
+ * NOTE: nothing reads `--font-vazir` at the moment — `.name-fa` sets the pair
+ * in Nastaliq instead. Left declared because the reasoning above is still the
+ * reasoning, and `preload: false` means an unread variable now costs nothing:
+ * no stylesheet asks for the face, so the face is never fetched.
  */
 const vazir = Vazirmatn({
   weight: ['100'],
   subsets: ['arabic'],
   variable: '--font-vazir',
   display: 'swap',
+  preload: false,
 })
 
 /**
