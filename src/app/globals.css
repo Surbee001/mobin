@@ -153,8 +153,19 @@ body {
 /* While the envelope is still sealed, the page underneath cannot move. */
 /* `html` as well as `body`: the document element is the thing that actually
    scrolls, so locking `body` alone leaves it free to be scrolled — which is
-   exactly what a browser's scroll restoration does on reload. */
-html:has(body[data-locked='true']),
+   exactly what a browser's scroll restoration does on reload.
+
+   TWO RULES, and they must stay two. Written as one selector list the pair
+   was all-or-nothing: an unrecognised selector anywhere in a comma-separated
+   list invalidates the whole list, so on any engine without `:has()` — Safari
+   before 15.4, and the WebViews on older Android phones that the in-app
+   browsers are built on — the `body` half went out with the `html` half and
+   the sealed envelope scrolled. Apart, the half that is understood applies. */
+html:has(body[data-locked='true']) {
+  overflow: hidden;
+  height: 100dvh;
+}
+
 body[data-locked='true'] {
   overflow: hidden;
   height: 100dvh;
