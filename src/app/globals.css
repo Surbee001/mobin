@@ -108,29 +108,91 @@ html {
   scroll-behavior: auto;
 
   /* ── The invitation is printed on cream. Always. ──────────────
-     `only light`, and not merely `light`.
+     `light dark`, and this line used to say `only light`. The change is the
+     whole fix; the reasoning is below and it is worth reading before anyone
+     puts it back.
 
-     Chrome on Android will re-colour a page that has no dark theme of its own
-     when the phone is in dark mode — Auto Dark Theme. It is not a filter over
-     the finished page: it inverts backgrounds and text per element, and it
-     leaves images alone. On this site that is ruinous rather than merely
-     unwanted. The envelope's blush pocket comes back dark while the flowers
-     printed into it do not, and `mix-blend-mode: multiply` — which is the only
-     reason that pattern sits IN the paper instead of on top of it — resolves
-     against a backdrop it was never drawn for. Multiply against a dark ground
-     returns the ground, so the trace goes patchy and the edge of the sheet
-     reads as a hard cut where the clip-path ends.
+     Android will re-colour a page it decides has no dark theme of its own.
+     There are three engines that do it — Chrome's Auto Dark Theme, WebView's
+     algorithmic darkening, and the older WebView force-dark flag that in-app
+     browsers are still built on — and they do not read the same signal. What
+     they do share is a rule about what they will NOT touch: a page that has a
+     dark theme is left to render it itself.
 
-     `light` alone does not stop it: that says which of the two schemes the
-     page is written in, and Auto Dark Theme's whole premise is re-colouring
-     pages written in light. `only light` is the documented opt-out, and there
-     is a matching <meta> in layout.tsx — the meta is what the engine reads
-     before the stylesheet has arrived, so both are wanted.
+     `only light` says the opposite of that. It is the documented opt-out and
+     Chrome honours it, which is why this looked right in Chrome for a year.
+     But to the two WebView paths `only light` reads as *this page does not do
+     dark* — which is precisely the condition for darkening it. The opt-out and
+     the trigger are the same sentence.
 
-     Nothing is lost by refusing: there is no dark setting of this design to
-     fall back to, and the layout's `themeColor` already commits the browser
-     chrome to the same cream on the same grounds. */
-  color-scheme: only light;
+     `light dark` says the page handles both. It costs nothing to say, because
+     the dark setting of this design is the cream one: see the block below,
+     which is where dark is answered and answers it in the colours the
+     invitation is printed in. Every engine then has a theme to defer to
+     instead of a page to invert.
+
+     What that inversion does, when it happens, is not a filter over the
+     finished page. It re-colours CSS and leaves images exactly as they were
+     photographed, so the two come apart: the blush pocket goes brown while the
+     flowers printed into it stay pink, the sheet behind the wax seal goes dark
+     while the seal's own white ground does not — and `darken` and `multiply`,
+     which are the only reason those plates sit IN the paper rather than on top
+     of it, resolve against a backdrop nobody drew them for. The seal ends up
+     in a white box. It does not look dark-themed; it looks broken.
+
+     Three things carry this, and all three are wanted:
+       · this declaration, which is the one the engines read latest and trust
+         most;
+       · the `<meta name="color-scheme">` in layout.tsx, which is what is read
+         before the stylesheet has arrived;
+       · the two `themeColor` metas there, which commit the browser's own
+         chrome to the same cream under BOTH schemes rather than letting it
+         darken the bar above a cream page.
+     And the <html> element carries an inline cream background, so that
+     declaring dark support cannot flash a dark canvas in the moment before
+     this stylesheet lands. */
+  color-scheme: light dark;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   THE DARK SETTING OF THIS DESIGN, WHICH IS THE LIGHT ONE.
+
+   This is what `color-scheme: light dark` above promises, and it has to
+   exist for that promise to be worth anything: WebView's default strategy is
+   named PREFER_WEB_THEME_OVER_USER_AGENT_DARKENING, and there has to be a
+   web theme there for it to prefer. Chrome's Auto Dark Theme takes the same
+   view. Neither is checking what the rule DOES — only that the page carries
+   one and has therefore thought about the question.
+
+   So the answer given here is: cream, the same cream. Nothing about this
+   invitation has a dark reading. It is printed on paper, and paper does not
+   change colour because a phone was set to dark at nine in the evening.
+
+   The rest of the palette needs no entry. It lives in @theme at the top of
+   this file, outside any media query, so it is already the same under both
+   schemes — these five are restated only because they are the ones a
+   darkening engine reaches for first, and because a block that declared
+   nothing would be dropped by the minifier as a rule that changes nothing.
+   The whole point is that it survives to be found.
+
+   The values are written out rather than pulled from their own variables for
+   the same reason. Keep them in step with @theme; there is no way to have
+   one list and still have a rule that reads as a theme.
+   ───────────────────────────────────────────────────────────── */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-paper: #f2efdc;
+    --color-paper-warm: #faf7e6;
+    --color-ink: #4e5942;
+    --color-ink-soft: #a8825e;
+    --color-accent: #a8825e;
+  }
+
+  html,
+  body {
+    background-color: #f2efdc;
+    color: #4e5942;
+  }
 }
 
 body {

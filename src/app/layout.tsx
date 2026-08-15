@@ -164,25 +164,57 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  // The paper, so the browser chrome runs on into the page. One value and not
-  // a light/dark pair: the invitation is printed on cream whatever the phone
-  // is set to, and a dark bar above a cream page is worse than no match at
-  // all. The tab ICON does answer the theme — see app/icon.svg — because that
-  // one sits in the browser's furniture rather than against the page.
-  themeColor: '#f2efdc',
-  // Refuses Chrome-for-Android's Auto Dark Theme, which repaints a page that
-  // declares no dark scheme of its own and takes the envelope apart doing it.
-  // `only light` is the opt-out; plain `light` is not. The stylesheet says the
-  // same thing on `html`, at length — see the note there. This meta is the
-  // copy that is read before the stylesheet has loaded.
-  colorScheme: 'only light',
+  // The paper, so the browser chrome runs on into the page.
+  //
+  // Written as a pair, and both halves are the same cream. That is not a
+  // redundancy: a single unqualified `theme-color` is treated as the LIGHT
+  // one, and a phone in dark mode falls back to darkening the bar itself —
+  // which is the brown bar over a cream page in the report this came from.
+  // Naming dark explicitly is what pins it, and it doubles as one more
+  // statement that this page has a dark setting and does not need one made
+  // for it. The tab ICON still answers the theme — see app/icon.svg —
+  // because that one sits in the browser's furniture rather than against the
+  // page.
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#f2efdc' },
+    { media: '(prefers-color-scheme: dark)', color: '#f2efdc' },
+  ],
+  // `light dark`, and it used to say `only light`. See the long note on `html`
+  // in globals.css: `only light` is the documented opt-out from Chrome's Auto
+  // Dark Theme, but to the two WebView darkening paths — which is what an
+  // in-app browser is — it reads as the page having no dark theme, and that is
+  // the condition for inventing one. Declaring both, and answering dark in
+  // cream, is what leaves the invitation alone.
+  //
+  // This meta is the copy read before the stylesheet has arrived; the
+  // stylesheet says the same thing again on `html`.
+  colorScheme: 'light dark',
   width: 'device-width',
   initialScale: 1,
 }
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="fa" dir="rtl" translate="no" className="notranslate h-full">
+    <html
+      lang="fa"
+      dir="rtl"
+      translate="no"
+      className="notranslate h-full"
+      // The one inline style on the site, and it is here because it is the
+      // only place it can do its job.
+      //
+      // Saying `color-scheme: light dark` tells the browser the page has a
+      // dark setting, and a browser that believes that will paint its blank
+      // canvas dark in the moment between the HTML arriving and the
+      // stylesheet arriving — a flash of charcoal before the cream, on
+      // exactly the slow connections this invitation is opened on. An
+      // attribute on the document element is in that first packet, so the
+      // canvas is cream from the first byte and the question never comes up.
+      //
+      // Hard-coded rather than `var(--color-paper)`: the variable is defined
+      // in the stylesheet, which is the thing that has not arrived yet.
+      style={{ backgroundColor: '#f2efdc' }}
+    >
       <body
         className={`${tobias.variable} ${amiri.variable} ${nastaliq.variable} ${markazi.variable} ${vazir.variable} ${pinyon.variable} min-h-full antialiased`}
       >
